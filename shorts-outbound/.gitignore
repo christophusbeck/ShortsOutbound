@@ -1,3 +1,21 @@
 # Godot 4+ specific ignores
 .godot/
-/android/
+/Android/
+.nomedia
+
+# Godot-specific ignores
+.import/
+export.cfg
+export_credentials.cfg
+*.tmp
+
+# C# / Mono specific ignores
+.mono/
+bin/
+obj/
+*.dll
+!*.csproj
+!*.sln
+
+# AI Models & Large Assets
+/Models/
