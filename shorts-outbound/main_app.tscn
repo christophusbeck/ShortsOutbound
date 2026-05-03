@@ -63,22 +63,25 @@ layout_mode = 2
 text = "Choose a game:
 "
 
-[node name="ItemList" type="ItemList" parent="MainUI/HBoxContainer/Sidebar/VBoxContainer" unique_id=2055773401]
+[node name="ItemListGames" type="ItemList" parent="MainUI/HBoxContainer/Sidebar/VBoxContainer" unique_id=2055773401]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(100, 100)
 layout_mode = 2
 item_count = 2
-item_0/text = "Statjack"
+item_0/text = "StatJack"
 item_1/text = "Other game"
 
-[node name="Label" type="Label" parent="MainUI/HBoxContainer/Sidebar/VBoxContainer" unique_id=1023796687]
+[node name="LabelGameSettings" type="Label" parent="MainUI/HBoxContainer/Sidebar/VBoxContainer" unique_id=1023796687]
 layout_mode = 2
 text = "Game settings:"
 
 [node name="LabelGenSlider" type="Label" parent="MainUI/HBoxContainer/Sidebar/VBoxContainer" unique_id=266837275]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Up to Pokémon generation: 1"
 
 [node name="GenSlider" type="HSlider" parent="MainUI/HBoxContainer/Sidebar/VBoxContainer" unique_id=478676073]
+unique_name_in_owner = true
 layout_mode = 2
 min_value = 1.0
 max_value = 10.0
@@ -92,10 +95,12 @@ layout_mode = 2
 text = "Save videos to:"
 
 [node name="LineEditPath" type="LineEdit" parent="MainUI/HBoxContainer/Sidebar/VBoxContainer" unique_id=16877680]
+unique_name_in_owner = true
 layout_mode = 2
 text = "C:\\\\"
 
 [node name="ButtonOpenPath" type="Button" parent="MainUI/HBoxContainer/Sidebar/VBoxContainer" unique_id=1512304266]
+unique_name_in_owner = true
 layout_mode = 2
 text = "Open
 "
@@ -107,6 +112,6 @@ layout_mode = 2
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 150)
 layout_mode = 2
-text = "Start Recording"
+text = "START RECORDING"
 
 [connection signal="pressed" from="MainUI/HBoxContainer/Sidebar/VBoxContainer/ButtonRecord" to="." method="OnRecordButtonPressed"]
