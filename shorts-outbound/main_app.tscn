@@ -1,8 +1,11 @@
 [gd_scene format=3 uid="uid://laaaeq0texpn"]
 
 [ext_resource type="Script" uid="uid://ouo3qtv3nvq5" path="res://FaceCam.cs" id="1_lmmkt"]
+[ext_resource type="Script" uid="uid://c54omxoysinxr" path="res://MainApp.cs" id="1_mlpmq"]
+[ext_resource type="Script" uid="uid://rgxdvpr7a5t4" path="res://RecordingViewport.cs" id="1_o16eq"]
 
 [node name="MainApp" type="Node2D" unique_id=1050366388]
+script = ExtResource("1_mlpmq")
 
 [node name="MainUI" type="CanvasLayer" parent="." unique_id=200744195]
 
@@ -16,9 +19,11 @@ layout_mode = 2
 stretch = true
 
 [node name="RecordingViewport" type="SubViewport" parent="MainUI/HBoxContainer/ViewportDisplay" unique_id=1068287418]
+unique_name_in_owner = true
 handle_input_locally = false
 size = Vector2i(480, 854)
 render_target_update_mode = 4
+script = ExtResource("1_o16eq")
 
 [node name="DefaultBackground" type="ColorRect" parent="MainUI/HBoxContainer/ViewportDisplay/RecordingViewport" unique_id=1654719004]
 offset_right = 480.0
@@ -98,7 +103,10 @@ text = "Open
 [node name="HSeparator" type="HSeparator" parent="MainUI/HBoxContainer/Sidebar/VBoxContainer" unique_id=1910500721]
 layout_mode = 2
 
-[node name="Button2" type="Button" parent="MainUI/HBoxContainer/Sidebar/VBoxContainer" unique_id=706413541]
+[node name="ButtonRecord" type="Button" parent="MainUI/HBoxContainer/Sidebar/VBoxContainer" unique_id=706413541]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 150)
 layout_mode = 2
 text = "Start Recording"
+
+[connection signal="pressed" from="MainUI/HBoxContainer/Sidebar/VBoxContainer/ButtonRecord" to="." method="OnRecordButtonPressed"]
