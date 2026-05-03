@@ -10,12 +10,6 @@
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="Sidebar" type="PanelContainer" parent="MainUI/HBoxContainer" unique_id=1906000572]
-layout_mode = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="MainUI/HBoxContainer/Sidebar" unique_id=918061283]
-layout_mode = 2
-
 [node name="ViewportDisplay" type="SubViewportContainer" parent="MainUI/HBoxContainer" unique_id=102111985]
 custom_minimum_size = Vector2(480, 854)
 layout_mode = 2
@@ -48,3 +42,63 @@ offset_right = 20.0
 grow_horizontal = 2
 grow_vertical = 0
 script = ExtResource("1_lmmkt")
+
+[node name="Sidebar" type="PanelContainer" parent="MainUI/HBoxContainer" unique_id=1906000572]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MainUI/HBoxContainer/Sidebar" unique_id=918061283]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+
+[node name="LogoPlaceholder" type="TextureRect" parent="MainUI/HBoxContainer/Sidebar/VBoxContainer" unique_id=1663125076]
+layout_mode = 2
+
+[node name="LabelGames" type="Label" parent="MainUI/HBoxContainer/Sidebar/VBoxContainer" unique_id=255158146]
+layout_mode = 2
+text = "Choose a game:
+"
+
+[node name="ItemList" type="ItemList" parent="MainUI/HBoxContainer/Sidebar/VBoxContainer" unique_id=2055773401]
+custom_minimum_size = Vector2(100, 100)
+layout_mode = 2
+item_count = 2
+item_0/text = "Statjack"
+item_1/text = "Other game"
+
+[node name="Label" type="Label" parent="MainUI/HBoxContainer/Sidebar/VBoxContainer" unique_id=1023796687]
+layout_mode = 2
+text = "Game settings:"
+
+[node name="LabelGenSlider" type="Label" parent="MainUI/HBoxContainer/Sidebar/VBoxContainer" unique_id=266837275]
+layout_mode = 2
+text = "Up to Pokémon generation: 1"
+
+[node name="GenSlider" type="HSlider" parent="MainUI/HBoxContainer/Sidebar/VBoxContainer" unique_id=478676073]
+layout_mode = 2
+min_value = 1.0
+max_value = 10.0
+value = 1.0
+
+[node name="HSeparator2" type="HSeparator" parent="MainUI/HBoxContainer/Sidebar/VBoxContainer" unique_id=894389011]
+layout_mode = 2
+
+[node name="LabelPath" type="Label" parent="MainUI/HBoxContainer/Sidebar/VBoxContainer" unique_id=740385981]
+layout_mode = 2
+text = "Save videos to:"
+
+[node name="LineEditPath" type="LineEdit" parent="MainUI/HBoxContainer/Sidebar/VBoxContainer" unique_id=16877680]
+layout_mode = 2
+text = "C:\\\\"
+
+[node name="ButtonOpenPath" type="Button" parent="MainUI/HBoxContainer/Sidebar/VBoxContainer" unique_id=1512304266]
+layout_mode = 2
+text = "Open
+"
+
+[node name="HSeparator" type="HSeparator" parent="MainUI/HBoxContainer/Sidebar/VBoxContainer" unique_id=1910500721]
+layout_mode = 2
+
+[node name="Button2" type="Button" parent="MainUI/HBoxContainer/Sidebar/VBoxContainer" unique_id=706413541]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+text = "Start Recording"
