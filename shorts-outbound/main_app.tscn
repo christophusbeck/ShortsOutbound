@@ -1,0 +1,50 @@
+[gd_scene format=3 uid="uid://laaaeq0texpn"]
+
+[ext_resource type="Script" uid="uid://ouo3qtv3nvq5" path="res://FaceCam.cs" id="1_lmmkt"]
+
+[node name="MainApp" type="Node2D" unique_id=1050366388]
+
+[node name="MainUI" type="CanvasLayer" parent="." unique_id=200744195]
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MainUI" unique_id=1567834768]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Sidebar" type="PanelContainer" parent="MainUI/HBoxContainer" unique_id=1906000572]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MainUI/HBoxContainer/Sidebar" unique_id=918061283]
+layout_mode = 2
+
+[node name="ViewportDisplay" type="SubViewportContainer" parent="MainUI/HBoxContainer" unique_id=102111985]
+custom_minimum_size = Vector2(480, 854)
+layout_mode = 2
+stretch = true
+
+[node name="RecordingViewport" type="SubViewport" parent="MainUI/HBoxContainer/ViewportDisplay" unique_id=1068287418]
+handle_input_locally = false
+size = Vector2i(480, 854)
+render_target_update_mode = 4
+
+[node name="DefaultBackground" type="ColorRect" parent="MainUI/HBoxContainer/ViewportDisplay/RecordingViewport" unique_id=1654719004]
+offset_right = 480.0
+offset_bottom = 854.0
+color = Color(1.3957917e-06, 0, 0.59649307, 1)
+
+[node name="GameContainer" type="Node2D" parent="MainUI/HBoxContainer/ViewportDisplay/RecordingViewport" unique_id=1987192895]
+
+[node name="OverlayLayer" type="CanvasLayer" parent="MainUI/HBoxContainer/ViewportDisplay/RecordingViewport" unique_id=2082484478]
+
+[node name="FaceCam" type="TextureRect" parent="MainUI/HBoxContainer/ViewportDisplay/RecordingViewport/OverlayLayer" unique_id=501815067]
+custom_minimum_size = Vector2(256, 256)
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -20.0
+offset_top = -40.0
+offset_right = 20.0
+grow_horizontal = 2
+grow_vertical = 0
+script = ExtResource("1_lmmkt")

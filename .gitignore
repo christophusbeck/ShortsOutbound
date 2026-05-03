@@ -11,7 +11,24 @@ export_credentials.cfg
 # Imported translations (automatically generated from CSV files)
 *.translation
 
-# Mono-specific ignores
+# Mono/C# specific ignores
 .mono/
+bin/
+obj/
 data_*/
 mono_crash.*.json
+
+# NuGet/Dependency ignores
+packages/
+*.nupkg
+# Exclude the locally downloaded runtimes/libraries
+*.dll
+*.so
+*.dylib
+# But don't ignore Godot's internal C# project files
+!*.csproj
+!*.sln
+
+# OS-specific
+.DS_Store
+Thumbs.db

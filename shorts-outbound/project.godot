@@ -11,8 +11,13 @@ config_version=5
 [application]
 
 config/name="ShortsOutbound"
-config/features=PackedStringArray("4.6", "Mobile")
+run/main_scene="uid://laaaeq0texpn"
+config/features=PackedStringArray("4.6", "C#", "Mobile")
 config/icon="res://icon.svg"
+
+[display]
+
+window/size/viewport_height=854
 
 [dotnet]
 
