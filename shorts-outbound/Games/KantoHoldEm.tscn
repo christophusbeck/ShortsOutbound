@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://b1qm05pmm037h"]
+
+[ext_resource type="Script" uid="uid://bo2i6adt7jdvj" path="res://Games/KantoHoldEm.cs" id="1_7wsep"]
+
+[node name="KantoHoldEm" type="Node2D" unique_id=100165382]
+script = ExtResource("1_7wsep")

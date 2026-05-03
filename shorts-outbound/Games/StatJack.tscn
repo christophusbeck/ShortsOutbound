@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://c811ddxr6ln7d"]
+
+[ext_resource type="Script" uid="uid://ke0qlv4aadbi" path="res://Games/StatJack.cs" id="1_6hqow"]
+
+[node name="StatJack" type="Node2D" unique_id=1814804166]
+script = ExtResource("1_6hqow")
