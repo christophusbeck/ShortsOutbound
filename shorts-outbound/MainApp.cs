@@ -1,6 +1,7 @@
 using Godot;
 using System;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 public partial class MainApp : Node2D
 {
@@ -19,6 +20,8 @@ public partial class MainApp : Node2D
 	private bool _isRecording = false;
 	private bool _cooldownActive = false;
 	private string _currentGameTitle = "";
+	private Node _currentGame; // Tracks the currently active minigame
+	private Dictionary<string, string> _gameLibrary = new();
 
 	public override void _Ready()
 	{
@@ -39,6 +42,8 @@ public partial class MainApp : Node2D
 		
 		_lineEditPath.Text = OS.GetUserDataDir();
 		
+		ScanGamesFolder();
+		
 		if (_itemListGames.ItemCount == 0) 
 		{
 			_itemListGames.AddItem("No Game"); 
@@ -46,23 +51,84 @@ public partial class MainApp : Node2D
 		_currentGameTitle = _itemListGames.GetItemText(0);
 		
 	}
+	private void ScanGamesFolder()
+	{
+	_gameLibrary.Clear();
+	_itemListGames.Clear();
+
+	string path = "res://Games/";
+	using var dir = DirAccess.Open(path);
+
+	if (dir != null)
+	{
+		dir.ListDirBegin();
+		string fileName = dir.GetNext();
+
+		while (fileName != "")
+		{
+			if (!dir.CurrentIsDir() && fileName.EndsWith(".tscn"))
+			{
+				// Remove ".tscn" for the display name
+				string gameName = fileName.Replace(".tscn", "");
+				_gameLibrary.Add(gameName, path + fileName);
+				_itemListGames.AddItem(gameName);
+			}
+			fileName = dir.GetNext();
+		}
+	}
+}
 	
 	// --- INTERACTION METHODS ---
 
 	private void OnSliderValueChanged(double value)
 	{
-		_labelGenSlider.Text = "Up to Pokémon generation: " + value.ToString();
+		int selectedGen = (int)value;
+		_labelGenSlider.Text = "Up to Pokémon generation: " + selectedGen.ToString();
 		
+	
+		// If a game is currently running, update it live
+		if (_currentGame is IBaseGame gameInterface)
+		{
+			gameInterface.SetGeneration(selectedGen);
+		}
 	}
 
 	private void OnGameItemActivated(long index)
 	{
-		// ItemActivated triggers on double-click or Enter
-		string gameName = _itemListGames.GetItemText((int)index);
-		GD.Print($"Loading Game: {gameName}");
+		_currentGameTitle = _itemListGames.GetItemText((int)index);
 		
-		// This is where you'll eventually call your LoadGame logic
-		// LoadGameByName(gameName);
+		if (_gameLibrary.ContainsKey(_currentGameTitle))
+		{
+			LoadGame(_gameLibrary[_currentGameTitle]);
+		}
+	}
+	
+	public void LoadGame(string scenePath)
+	{
+		// 1. Clean up the existing game
+		if (_currentGame != null)
+		{
+			_currentGame.QueueFree();
+			// Optional: Call _currentGame.StopGame() if using the interface
+			_currentGame = null; 
+		}
+
+		// 2. Load and Instance the new game
+		PackedScene gameScene = GD.Load<PackedScene>(scenePath);
+		if (gameScene == null) return;
+
+		_currentGame = gameScene.Instantiate();
+		
+		// 3. Add to the Recording Zone
+		GetNode<Node2D>("%GameContainer").AddChild(_currentGame);
+
+		// 4. Initialize if it follows our IBaseGame interface
+		if (_currentGame is IBaseGame game)
+		{
+			// Set the current slider value immediately before starting
+			game.SetGeneration((int)_genSlider.Value);
+			game.StartGame();
+		}
 	}
 
 	private void OnOpenFolderPressed()
