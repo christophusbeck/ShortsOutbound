@@ -1,11 +1,201 @@
 [gd_scene format=3 uid="uid://c811ddxr6ln7d"]
 
 [ext_resource type="Script" uid="uid://ke0qlv4aadbi" path="res://Games/StatJack.cs" id="1_6hqow"]
+[ext_resource type="Texture2D" uid="uid://blxhrlv2k2ntp" path="res://Assets/table.jpg" id="2_yef50"]
+[ext_resource type="Texture2D" uid="uid://wqge8i1lxabu" path="res://Assets/card_back.png" id="3_wy7mw"]
+[ext_resource type="Texture2D" uid="uid://byno5c3by1ta" path="res://Assets/card_front.png" id="4_s65gb"]
+[ext_resource type="Texture2D" uid="uid://dc0e2nrpi3urg" path="res://Assets/Pokesprites/0001.png" id="5_tw4jp"]
+[ext_resource type="Texture2D" uid="uid://crltv70ndd451" path="res://Assets/button_stand.png" id="6_uhw48"]
+[ext_resource type="Texture2D" uid="uid://tenlq2ulgni8" path="res://Assets/button_hit.png" id="7_m50w7"]
+[ext_resource type="Texture2D" uid="uid://bg1thhypo8r4q" path="res://Assets/sign.png" id="8_eccwa"]
 
 [node name="StatJack" type="Node2D" unique_id=1814804166]
 script = ExtResource("1_6hqow")
+
+[node name="Background" type="TextureRect" parent="." unique_id=1176208954]
+custom_minimum_size = Vector2(480, 854)
+offset_right = 480.0
+offset_bottom = 854.0
+texture = ExtResource("2_yef50")
+expand_mode = 1
 
 [node name="ReferenceRect" type="ReferenceRect" parent="." unique_id=2117211119]
 custom_minimum_size = Vector2(480, 854)
 offset_right = 40.0
 offset_bottom = 40.0
+
+[node name="CardDeck" type="TextureRect" parent="." unique_id=1934699191]
+offset_left = 55.0
+offset_top = 428.0
+offset_right = 160.0
+offset_bottom = 583.0
+texture = ExtResource("3_wy7mw")
+expand_mode = 1
+
+[node name="CardBack" type="TextureRect" parent="." unique_id=1391488023]
+unique_name_in_owner = true
+offset_left = 54.0
+offset_top = 424.0
+offset_right = 159.0
+offset_bottom = 579.0
+texture = ExtResource("3_wy7mw")
+expand_mode = 1
+
+[node name="CardDealer" type="TextureRect" parent="." unique_id=1698473633]
+unique_name_in_owner = true
+offset_left = 185.0
+offset_top = 66.0
+offset_right = 290.0
+offset_bottom = 221.0
+texture = ExtResource("4_s65gb")
+expand_mode = 1
+
+[node name="SpriteDealer" type="TextureRect" parent="CardDealer" unique_id=501969331]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -37.5
+offset_top = -90.0
+offset_right = 37.5
+offset_bottom = -15.0
+grow_horizontal = 2
+grow_vertical = 0
+texture = ExtResource("5_tw4jp")
+expand_mode = 1
+
+[node name="CardPlayer" type="TextureRect" parent="." unique_id=1306833895]
+unique_name_in_owner = true
+offset_left = 185.0
+offset_top = 249.0
+offset_right = 290.0
+offset_bottom = 404.0
+texture = ExtResource("4_s65gb")
+expand_mode = 1
+
+[node name="SpritePlayer" type="TextureRect" parent="CardPlayer" unique_id=1080347410]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -37.5
+offset_top = -90.0
+offset_right = 37.5
+offset_bottom = -15.0
+grow_horizontal = 2
+grow_vertical = 0
+texture = ExtResource("5_tw4jp")
+expand_mode = 1
+
+[node name="ButtonStand" type="TextureButton" parent="." unique_id=975896277]
+unique_name_in_owner = true
+offset_left = 299.0
+offset_top = 365.0
+offset_right = 479.0
+offset_bottom = 460.0
+texture_normal = ExtResource("6_uhw48")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="ButtonHit" type="TextureButton" parent="." unique_id=1142343247]
+unique_name_in_owner = true
+offset_left = 299.0
+offset_top = 469.0
+offset_right = 479.0
+offset_bottom = 564.0
+texture_normal = ExtResource("7_m50w7")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="PlayerScoreSign" type="TextureRect" parent="." unique_id=1582883164]
+offset_left = 15.0
+offset_top = 287.0
+offset_right = 178.0
+offset_bottom = 371.0
+texture = ExtResource("8_eccwa")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="LabelPlayerScore" type="Label" parent="PlayerScoreSign" unique_id=1438826773]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -60.5
+offset_top = -53.0
+offset_right = 59.5
+offset_bottom = 43.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.517036, 0.07997457, 0.12627378, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.654902)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 70
+text = "000"
+
+[node name="DealerScoreSign" type="TextureRect" parent="." unique_id=1430838640]
+offset_left = 15.0
+offset_top = 101.0
+offset_right = 178.0
+offset_bottom = 185.0
+texture = ExtResource("8_eccwa")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="LabelDealerScore" type="Label" parent="DealerScoreSign" unique_id=788003790]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -60.5
+offset_top = -53.0
+offset_right = 59.5
+offset_bottom = 43.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.517036, 0.07997457, 0.12627378, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.654902)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 70
+text = "000"
+
+[node name="GameStatSign" type="TextureRect" parent="." unique_id=239993739]
+offset_left = 306.0
+offset_top = 165.0
+offset_right = 469.0
+offset_bottom = 249.0
+texture = ExtResource("8_eccwa")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="GameStatLabel" type="Label" parent="GameStatSign" unique_id=1518418142]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -66.5
+offset_top = -32.0
+offset_right = 72.5
+offset_bottom = 32.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.517036, 0.07997457, 0.12627378, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.654902)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 40
+text = "SP.ATK"

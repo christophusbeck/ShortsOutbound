@@ -31,6 +31,7 @@ offset_bottom = 854.0
 color = Color(1.3957917e-06, 0, 0.59649307, 1)
 
 [node name="GameContainer" type="Node2D" parent="MainUI/HBoxContainer/ViewportDisplay/RecordingViewport" unique_id=1987192895]
+unique_name_in_owner = true
 
 [node name="OverlayLayer" type="CanvasLayer" parent="MainUI/HBoxContainer/ViewportDisplay/RecordingViewport" unique_id=2082484478]
 
