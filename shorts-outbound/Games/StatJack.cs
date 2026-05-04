@@ -34,4 +34,6 @@ public partial class StatJack : Node2D, IBaseGame
 	{
 		GD.Print("Cleaning up game state...");
 	}
+	
+
 }

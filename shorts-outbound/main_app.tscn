@@ -71,6 +71,11 @@ item_count = 2
 item_0/text = "StatJack"
 item_1/text = "Other game"
 
+[node name="ButtonResetGame" type="Button" parent="MainUI/HBoxContainer/Sidebar/VBoxContainer" unique_id=864602920]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Reset Game"
+
 [node name="LabelGameSettings" type="Label" parent="MainUI/HBoxContainer/Sidebar/VBoxContainer" unique_id=1023796687]
 layout_mode = 2
 text = "Game settings:"

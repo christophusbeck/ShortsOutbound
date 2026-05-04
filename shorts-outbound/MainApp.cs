@@ -15,6 +15,7 @@ public partial class MainApp : Node2D
 	private Button _buttonOpenPath;
 	private Button _buttonRecord;
 	private Label _labelGenSlider;
+	private Button _buttonResetGame;
 
 	// State tracking
 	private bool _isRecording = false;
@@ -33,12 +34,14 @@ public partial class MainApp : Node2D
 		_buttonOpenPath = GetNode<Button>("%ButtonOpenPath");
 		_buttonRecord = GetNode<Button>("%ButtonRecord");
 		_labelGenSlider = GetNode<Label>("%LabelGenSlider");
+		_buttonResetGame = GetNode<Button>("%ButtonResetGame");
 
 		// Connect Signals to Methods
 		_buttonRecord.Pressed += OnRecordButtonPressed;
 		_buttonOpenPath.Pressed += OnOpenFolderPressed;
 		_genSlider.ValueChanged += OnSliderValueChanged;
 		_itemListGames.ItemActivated += OnGameItemActivated;
+		_buttonResetGame.Pressed += OnResetButtonPressed;
 		
 		_lineEditPath.Text = OS.GetUserDataDir();
 		
@@ -89,8 +92,13 @@ public partial class MainApp : Node2D
 		// If a game is currently running, update it live
 		if (_currentGame is IBaseGame gameInterface)
 		{
+			LoadGame(_gameLibrary[_currentGameTitle]);
 			gameInterface.SetGeneration(selectedGen);
 		}
+	}
+	
+	private void OnResetButtonPressed() {
+		GD.Print("Resetting game...");
 	}
 
 	private void OnGameItemActivated(long index)
