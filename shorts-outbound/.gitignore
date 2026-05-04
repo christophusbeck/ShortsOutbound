@@ -17,5 +17,7 @@ obj/
 !*.csproj
 !*.sln
 
-# AI Models & Large Assets
+# AI Models & Large Assets & potentially copyrighted Assets
 /Models/
+/Assets/Pokesprites/*
+!/Assets/Pokesprites/0000.png
