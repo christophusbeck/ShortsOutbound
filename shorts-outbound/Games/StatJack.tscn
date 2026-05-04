@@ -4,3 +4,8 @@
 
 [node name="StatJack" type="Node2D" unique_id=1814804166]
 script = ExtResource("1_6hqow")
+
+[node name="ReferenceRect" type="ReferenceRect" parent="." unique_id=2117211119]
+custom_minimum_size = Vector2(480, 854)
+offset_right = 40.0
+offset_bottom = 40.0
