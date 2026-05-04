@@ -9,6 +9,13 @@ export.cfg
 export_credentials.cfg
 *.tmp
 
+# Build/Export outputs
+/Builds/
+/Exports/
+*.exe
+*.pck
+*.zip
+
 # C# / Mono specific ignores
 .mono/
 bin/
