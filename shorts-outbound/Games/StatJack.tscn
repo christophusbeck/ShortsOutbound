@@ -8,6 +8,10 @@
 [ext_resource type="Texture2D" uid="uid://crltv70ndd451" path="res://Assets/button_stand.png" id="6_uhw48"]
 [ext_resource type="Texture2D" uid="uid://tenlq2ulgni8" path="res://Assets/button_hit.png" id="7_m50w7"]
 [ext_resource type="Texture2D" uid="uid://bg1thhypo8r4q" path="res://Assets/sign.png" id="8_eccwa"]
+[ext_resource type="Texture2D" uid="uid://bsd4pvv0c1r4f" path="res://Assets/splash_title.png" id="9_m50w7"]
+[ext_resource type="Texture2D" uid="uid://bal7c3tlsl1s6" path="res://Assets/splash_win.png" id="10_eccwa"]
+[ext_resource type="Texture2D" uid="uid://dwbp7wily3rdk" path="res://Assets/splash_lose.png" id="11_6ghtl"]
+[ext_resource type="Texture2D" uid="uid://dxr2swm6nmv2p" path="res://Assets/splash_draw.png" id="12_yy6s8"]
 
 [node name="StatJack" type="Node2D" unique_id=1814804166]
 script = ExtResource("1_6hqow")
@@ -29,15 +33,6 @@ offset_left = 55.0
 offset_top = 428.0
 offset_right = 160.0
 offset_bottom = 583.0
-texture = ExtResource("3_wy7mw")
-expand_mode = 1
-
-[node name="CardBack" type="TextureRect" parent="." unique_id=1391488023]
-unique_name_in_owner = true
-offset_left = 54.0
-offset_top = 424.0
-offset_right = 159.0
-offset_bottom = 579.0
 texture = ExtResource("3_wy7mw")
 expand_mode = 1
 
@@ -93,26 +88,6 @@ grow_vertical = 0
 texture = ExtResource("5_tw4jp")
 expand_mode = 1
 
-[node name="ButtonStand" type="TextureButton" parent="." unique_id=975896277]
-unique_name_in_owner = true
-offset_left = 299.0
-offset_top = 365.0
-offset_right = 479.0
-offset_bottom = 460.0
-texture_normal = ExtResource("6_uhw48")
-ignore_texture_size = true
-stretch_mode = 4
-
-[node name="ButtonHit" type="TextureButton" parent="." unique_id=1142343247]
-unique_name_in_owner = true
-offset_left = 299.0
-offset_top = 469.0
-offset_right = 479.0
-offset_bottom = 564.0
-texture_normal = ExtResource("7_m50w7")
-ignore_texture_size = true
-stretch_mode = 4
-
 [node name="PlayerScoreSign" type="TextureRect" parent="." unique_id=1582883164]
 offset_left = 15.0
 offset_top = 287.0
@@ -141,6 +116,7 @@ theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.654902)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 70
 text = "000"
+horizontal_alignment = 1
 
 [node name="DealerScoreSign" type="TextureRect" parent="." unique_id=1430838640]
 offset_left = 15.0
@@ -170,6 +146,7 @@ theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.654902)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 70
 text = "000"
+horizontal_alignment = 1
 
 [node name="GameStatSign" type="TextureRect" parent="." unique_id=239993739]
 offset_left = 306.0
@@ -198,4 +175,84 @@ theme_override_colors/font_color = Color(0.517036, 0.07997457, 0.12627378, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.654902)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 40
-text = "SP.ATK"
+text = "stat"
+horizontal_alignment = 1
+
+[node name="TextureButtonStand" type="TextureButton" parent="." unique_id=1951443032]
+unique_name_in_owner = true
+offset_left = 301.0
+offset_top = 378.0
+offset_right = 481.0
+offset_bottom = 473.0
+texture_normal = ExtResource("6_uhw48")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="TextureButtonHit" type="TextureButton" parent="." unique_id=442654235]
+unique_name_in_owner = true
+offset_left = 299.0
+offset_top = 482.0
+offset_right = 479.0
+offset_bottom = 577.0
+texture_normal = ExtResource("7_m50w7")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="CardBack" type="TextureRect" parent="." unique_id=1391488023]
+unique_name_in_owner = true
+offset_left = 54.0
+offset_top = 424.0
+offset_right = 159.0
+offset_bottom = 579.0
+texture = ExtResource("3_wy7mw")
+expand_mode = 1
+
+[node name="ColorRectSplash" type="ColorRect" parent="." unique_id=1428195910]
+unique_name_in_owner = true
+visible = false
+offset_right = 480.0
+offset_bottom = 854.0
+color = Color(0, 0, 0, 0.54901963)
+
+[node name="SplashTitle" type="TextureRect" parent="ColorRectSplash" unique_id=493609776]
+unique_name_in_owner = true
+layout_mode = 0
+offset_top = 270.0
+offset_right = 480.0
+offset_bottom = 590.0
+texture = ExtResource("9_m50w7")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="SplashWin" type="TextureRect" parent="ColorRectSplash" unique_id=615875625]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_top = 270.0
+offset_right = 480.0
+offset_bottom = 590.0
+texture = ExtResource("10_eccwa")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="SplashLose" type="TextureRect" parent="ColorRectSplash" unique_id=296757504]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_top = 270.0
+offset_right = 480.0
+offset_bottom = 590.0
+texture = ExtResource("11_6ghtl")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="SplashDraw" type="TextureRect" parent="ColorRectSplash" unique_id=994662945]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_top = 270.0
+offset_right = 480.0
+offset_bottom = 590.0
+texture = ExtResource("12_yy6s8")
+expand_mode = 1
+stretch_mode = 4
