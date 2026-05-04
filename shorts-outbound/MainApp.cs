@@ -16,6 +16,8 @@ public partial class MainApp : Node2D
 	private Button _buttonRecord;
 	private Label _labelGenSlider;
 	private Button _buttonResetGame;
+	private CheckBox _checkBoxFacecam;
+	private TextureRect _facecam;
 
 	// State tracking
 	private bool _isRecording = false;
@@ -35,6 +37,8 @@ public partial class MainApp : Node2D
 		_buttonRecord = GetNode<Button>("%ButtonRecord");
 		_labelGenSlider = GetNode<Label>("%LabelGenSlider");
 		_buttonResetGame = GetNode<Button>("%ButtonResetGame");
+		_checkBoxFacecam = GetNode<CheckBox>("%CheckBoxFacecam");
+   		_facecam = GetNode<TextureRect>("%Facecam");
 
 		// Connect Signals to Methods
 		_buttonRecord.Pressed += OnRecordButtonPressed;
@@ -42,7 +46,10 @@ public partial class MainApp : Node2D
 		_genSlider.ValueChanged += OnSliderValueChanged;
 		_itemListGames.ItemActivated += OnGameItemActivated;
 		_buttonResetGame.Pressed += OnResetButtonPressed;
+		_checkBoxFacecam.Toggled += OnFacecamToggled;
 		
+		_checkBoxFacecam.ButtonPressed = true;
+		_facecam.Visible = true;
 		_lineEditPath.Text = OS.GetUserDataDir();
 		
 		ScanGamesFolder();
@@ -97,8 +104,28 @@ public partial class MainApp : Node2D
 		}
 	}
 	
-	private void OnResetButtonPressed() {
-		GD.Print("Resetting game...");
+	private void OnResetButtonPressed() 
+	{
+		GD.Print("Resetting current game...");
+
+		// Check if there is a game currently running
+		if (_currentGame != null && _currentGame is IBaseGame game)
+		{
+			// 1. Stop the current game logic (clears timers, tweens, etc.)
+			game.StopGame();
+
+			// 2. Refresh the generation (in case the slider was moved)
+			game.SetGeneration((int)_genSlider.Value);
+
+			// 3. Start it fresh
+			game.StartGame();
+			
+			GD.Print($"Game '{_currentGameTitle}' has been reset.");
+		}
+		else
+		{
+			GD.Print("No active game to reset.");
+		}
 	}
 
 	private void OnGameItemActivated(long index)
@@ -203,5 +230,11 @@ public partial class MainApp : Node2D
 
 		_buttonRecord.Disabled = false;
 		_cooldownActive = false;
+	}
+	
+	private void OnFacecamToggled(bool isToggled)
+	{
+		_facecam.Visible = isToggled;
+		GD.Print("Facecam " + (isToggled ? "Enabled" : "Disabled"));
 	}
 }

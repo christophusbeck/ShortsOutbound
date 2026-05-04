@@ -35,8 +35,9 @@ unique_name_in_owner = true
 
 [node name="OverlayLayer" type="CanvasLayer" parent="MainUI/HBoxContainer/ViewportDisplay/RecordingViewport" unique_id=2082484478]
 
-[node name="FaceCam" type="TextureRect" parent="MainUI/HBoxContainer/ViewportDisplay/RecordingViewport/OverlayLayer" unique_id=501815067]
-custom_minimum_size = Vector2(256, 256)
+[node name="Facecam" type="TextureRect" parent="MainUI/HBoxContainer/ViewportDisplay/RecordingViewport/OverlayLayer" unique_id=501815067]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(350, 350)
 anchors_preset = 7
 anchor_left = 0.5
 anchor_top = 1.0
@@ -47,6 +48,8 @@ offset_top = -40.0
 offset_right = 20.0
 grow_horizontal = 2
 grow_vertical = 0
+mouse_filter = 2
+flip_h = true
 script = ExtResource("1_lmmkt")
 
 [node name="Sidebar" type="PanelContainer" parent="MainUI/HBoxContainer" unique_id=1906000572]
@@ -119,5 +122,11 @@ unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 150)
 layout_mode = 2
 text = "START RECORDING"
+
+[node name="CheckBoxFacecam" type="CheckBox" parent="MainUI/HBoxContainer/Sidebar/VBoxContainer" unique_id=469312233]
+unique_name_in_owner = true
+layout_mode = 2
+button_pressed = true
+text = "Enable face cam"
 
 [connection signal="pressed" from="MainUI/HBoxContainer/Sidebar/VBoxContainer/ButtonRecord" to="." method="OnRecordButtonPressed"]
