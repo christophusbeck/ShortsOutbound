@@ -63,30 +63,43 @@ public partial class MainApp : Node2D
 	}
 	private void ScanGamesFolder()
 	{
-	_gameLibrary.Clear();
-	_itemListGames.Clear();
+		_gameLibrary.Clear();
+		_itemListGames.Clear();
 
-	string path = "res://Games/";
-	using var dir = DirAccess.Open(path);
+		string path = "res://Games/";
+		using var dir = DirAccess.Open(path);
 
-	if (dir != null)
-	{
-		dir.ListDirBegin();
-		string fileName = dir.GetNext();
-
-		while (fileName != "")
+		if (dir != null)
 		{
-			if (!dir.CurrentIsDir() && fileName.EndsWith(".tscn"))
+			dir.ListDirBegin();
+			string fileName = dir.GetNext();
+
+			while (fileName != "")
 			{
-				// Remove ".tscn" for the display name
-				string gameName = fileName.Replace(".tscn", "");
-				_gameLibrary.Add(gameName, path + fileName);
-				_itemListGames.AddItem(gameName);
+				if (!dir.CurrentIsDir())
+				{
+					// Check for both the source and the exported 'remap' version
+					if (fileName.EndsWith(".tscn") || fileName.EndsWith(".tscn.remap"))
+					{
+						// Remove extensions to get the clean name (e.g., "StatJack")
+						string gameName = fileName.Replace(".tscn", "").Replace(".remap", "");
+						
+						// Always point the library to the standard .tscn path
+						// Godot's ResourceLoader will handle the redirection internally
+						string fullPath = path + gameName + ".tscn";
+						
+						if (!_gameLibrary.ContainsKey(gameName))
+						{
+							_gameLibrary.Add(gameName, fullPath);
+							_itemListGames.AddItem(gameName);
+							GD.Print($"Successfully indexed: {gameName}");
+						}
+					}
+				}
+				fileName = dir.GetNext();
 			}
-			fileName = dir.GetNext();
 		}
 	}
-}
 	
 	// --- INTERACTION METHODS ---
 

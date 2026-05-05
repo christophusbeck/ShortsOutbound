@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://ouo3qtv3nvq5" path="res://FaceCam.cs" id="1_lmmkt"]
 [ext_resource type="Script" uid="uid://c54omxoysinxr" path="res://MainApp.cs" id="1_mlpmq"]
 [ext_resource type="Script" uid="uid://rgxdvpr7a5t4" path="res://RecordingViewport.cs" id="1_o16eq"]
+[ext_resource type="Texture2D" uid="uid://cwqd5wskdo4ns" path="res://logo.png" id="4_t7465"]
 
 [node name="MainApp" type="Node2D" unique_id=1050366388]
 script = ExtResource("1_mlpmq")
@@ -61,6 +62,10 @@ layout_mode = 2
 
 [node name="LogoPlaceholder" type="TextureRect" parent="MainUI/HBoxContainer/Sidebar/VBoxContainer" unique_id=1663125076]
 layout_mode = 2
+size_flags_vertical = 3
+texture = ExtResource("4_t7465")
+expand_mode = 1
+stretch_mode = 4
 
 [node name="LabelGames" type="Label" parent="MainUI/HBoxContainer/Sidebar/VBoxContainer" unique_id=255158146]
 layout_mode = 2
