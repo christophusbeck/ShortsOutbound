@@ -14,7 +14,7 @@ config/name="ShortsOutbound"
 run/main_scene="uid://laaaeq0texpn"
 config/features=PackedStringArray("4.6", "C#", "Mobile")
 boot_splash/image="uid://cwqd5wskdo4ns"
-config/icon="res://icon.svg"
+config/icon="uid://dth00eqc1espl"
 
 [display]
 
