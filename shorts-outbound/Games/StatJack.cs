@@ -21,6 +21,9 @@ public partial class StatJack : Node2D, IBaseGame
 	private ColorRect _colorRectSplash;
 	private TextureRect _splashTitle, _splashWin, _splashLose, _splashDraw;
 
+	// Deck State
+	private HashSet<int> _drawnPokemonIds = new HashSet<int>();
+
 	private int _playerTotal = 0;
 	private int _dealerTotal = 0;
 	private bool _isAnimating = false;
@@ -28,15 +31,10 @@ public partial class StatJack : Node2D, IBaseGame
 
 	public override void _Ready()
 	{
-		// Card Containers (The Parents)
 		_cardDealer = GetNode<TextureRect>("%CardDealer");
 		_cardPlayer = GetNode<TextureRect>("%CardPlayer");
-		
-		// Sprite Children
 		_spriteDealer = GetNode<TextureRect>("%SpriteDealer");
 		_spritePlayer = GetNode<TextureRect>("%SpritePlayer");
-		
-		// Animation & UI nodes
 		_cardBack = GetNode<TextureRect>("%CardBack");
 		_cardDeck = GetNode<TextureRect>("CardDeck");
 		_buttonHit = GetNode<TextureButton>("%TextureButtonHit");
@@ -44,20 +42,16 @@ public partial class StatJack : Node2D, IBaseGame
 		_labelDealerScore = GetNode<Label>("%LabelDealerScore");
 		_labelPlayerScore = GetNode<Label>("%LabelPlayerScore");
 		_gameStatLabel = GetNode<Label>("%GameStatLabel");
-
-		// Splash Elements
 		_colorRectSplash = GetNode<ColorRect>("%ColorRectSplash");
 		_splashTitle = GetNode<TextureRect>("%SplashTitle");
 		_splashWin = GetNode<TextureRect>("%SplashWin");
 		_splashLose = GetNode<TextureRect>("%SplashLose");
 		_splashDraw = GetNode<TextureRect>("%SplashDraw");
 
-		// Signals
 		_buttonHit.Pressed += OnHitPressed;
 		_buttonStand.Pressed += OnStandPressed;
 		_colorRectSplash.GuiInput += OnSplashGuiInput;
 
-		// Ensure everything is clean on load
 		_cardDealer.Visible = false;
 		_cardPlayer.Visible = false;
 		_cardBack.Visible = false;
@@ -77,60 +71,44 @@ public partial class StatJack : Node2D, IBaseGame
 		_dealerTotal = 0;
 		_labelPlayerScore.Text = "0";
 		_labelDealerScore.Text = "0";
-		
-		// Hide the parent Card nodes (hides sprites automatically)
+		_drawnPokemonIds.Clear();
 		_cardDealer.Visible = false;
 		_cardPlayer.Visible = false;
-		
 		SetButtonsEnabled(true);
 	}
 
-	private async Task ShowSplash(TextureRect activeSplash)
+	private int DrawUniquePokemonId()
 	{
-		_splashTitle.Visible = false;
-		_splashWin.Visible = false;
-		_splashLose.Visible = false;
-		_splashDraw.Visible = false;
-
-		activeSplash.Visible = true;
-		_colorRectSplash.Visible = true;
-		_waitingForClick = true;
-
-		while (_waitingForClick)
+		int pokemonId;
+		do
 		{
-			await ToSignal(GetTree(), "process_frame");
-		}
+			pokemonId = GameUtils.GetRandomIdByGenRange(1, _currentGeneration);
+		} 
+		while (_drawnPokemonIds.Contains(pokemonId));
 
-		_colorRectSplash.Visible = false;
-	}
-
-	private void OnSplashGuiInput(InputEvent @event)
-	{
-		if (@event is InputEventMouseButton mb && mb.Pressed && mb.ButtonIndex == MouseButton.Left)
-		{
-			if (_waitingForClick) _waitingForClick = false;
-		}
-	}
-
-	private void PickRandomStatMode()
-	{
-		string[] stats = { "HP", "ATK", "DEF", "SPD", "SPATK", "SPDEF" };
-		_currentStatMode = stats[GD.Randi() % stats.Length];
-		_gameStatLabel.Text = _currentStatMode;
+		_drawnPokemonIds.Add(pokemonId);
+		return pokemonId;
 	}
 
 	private async void OnHitPressed()
 	{
 		if (_isAnimating || _waitingForClick) return;
 		
-		int pokemonId = GameUtils.GetRandomIdByGenRange(1, _currentGeneration);
-		// We pass the Parent (CardPlayer) and the Child (SpritePlayer)
+		int pokemonId = DrawUniquePokemonId();
 		await AnimateCardDraw(_cardPlayer, _spritePlayer, pokemonId);
 
 		_playerTotal += GetStatValue(pokemonId, _currentStatMode);
 		_labelPlayerScore.Text = _playerTotal.ToString();
 
-		if (_playerTotal > GoalScore) EndGame(false);
+		// Win/Loss immediate checks
+		if (_playerTotal == GoalScore) 
+		{
+			EndGame(true); // Instant Blackjack Win!
+		}
+		else if (_playerTotal > GoalScore) 
+		{
+			EndGame(false); // Bust
+		}
 	}
 
 	private async void OnStandPressed()
@@ -140,41 +118,19 @@ public partial class StatJack : Node2D, IBaseGame
 
 		while (_dealerTotal < DealerStopThreshold)
 		{
-			int pokemonId = GameUtils.GetRandomIdByGenRange(1, _currentGeneration);
+			int pokemonId = DrawUniquePokemonId();
 			await AnimateCardDraw(_cardDealer, _spriteDealer, pokemonId);
 			
 			_dealerTotal += GetStatValue(pokemonId, _currentStatMode);
 			_labelDealerScore.Text = _dealerTotal.ToString();
+
+			// If dealer hits exactly GoalScore, they stop immediately
+			if (_dealerTotal >= GoalScore) break;
 			
 			await ToSignal(GetTree().CreateTimer(0.6f), "timeout");
 		}
 
 		CheckWinner();
-	}
-
-	private async Task AnimateCardDraw(TextureRect cardContainer, TextureRect pokemonSprite, int pokemonId)
-	{
-		_isAnimating = true;
-		
-		_cardBack.GlobalPosition = _cardDeck.GlobalPosition;
-		_cardBack.Visible = true;
-
-		Tween tween = GetTree().CreateTween();
-		tween.TweenProperty(_cardBack, "global_position", cardContainer.GlobalPosition, 0.3f)
-			 .SetTrans(Tween.TransitionType.Quad)
-			 .SetEase(Tween.EaseType.Out);
-
-		await ToSignal(tween, "finished");
-
-		_cardBack.Visible = false;
-
-		// Set the sprite texture (the child)
-		pokemonSprite.Texture = GameUtils.GetPokemonSprite(pokemonId);
-		
-		// Show the card container (the parent)
-		cardContainer.Visible = true; 
-		
-		_isAnimating = false;
 	}
 
 	private void CheckWinner()
@@ -183,18 +139,53 @@ public partial class StatJack : Node2D, IBaseGame
 		else if (_dealerTotal > GoalScore) EndGame(true);
 		else if (_playerTotal > _dealerTotal) EndGame(true);
 		else if (_playerTotal < _dealerTotal) EndGame(false);
-		else EndGame(null);
+		else EndGame(null); // Draw
+	}
+
+	private async Task AnimateCardDraw(TextureRect cardContainer, TextureRect pokemonSprite, int pokemonId)
+	{
+		_isAnimating = true;
+		_cardBack.GlobalPosition = _cardDeck.GlobalPosition;
+		_cardBack.Visible = true;
+		Tween tween = GetTree().CreateTween();
+		tween.TweenProperty(_cardBack, "global_position", cardContainer.GlobalPosition, 0.3f)
+			 .SetTrans(Tween.TransitionType.Quad)
+			 .SetEase(Tween.EaseType.Out);
+		await ToSignal(tween, "finished");
+		_cardBack.Visible = false;
+		pokemonSprite.Texture = GameUtils.GetPokemonSprite(pokemonId);
+		cardContainer.Visible = true; 
+		_isAnimating = false;
+	}
+
+	private async Task ShowSplash(TextureRect activeSplash)
+	{
+		_splashTitle.Visible = false; _splashWin.Visible = false; _splashLose.Visible = false; _splashDraw.Visible = false;
+		activeSplash.Visible = true; _colorRectSplash.Visible = true; _waitingForClick = true;
+		while (_waitingForClick) await ToSignal(GetTree(), "process_frame");
+		_colorRectSplash.Visible = false;
+	}
+
+	private void OnSplashGuiInput(InputEvent @event)
+	{
+		if (@event is InputEventMouseButton mb && mb.Pressed && mb.ButtonIndex == MouseButton.Left)
+			if (_waitingForClick) _waitingForClick = false;
+	}
+
+	private void PickRandomStatMode()
+	{
+		string[] stats = { "HP", "ATK", "DEF", "SPD", "SPATK", "SPDEF" };
+		_currentStatMode = stats[GD.Randi() % stats.Length];
+		_gameStatLabel.Text = _currentStatMode;
 	}
 
 	private async void EndGame(bool? playerWon)
 	{
 		SetButtonsEnabled(false);
 		await ToSignal(GetTree().CreateTimer(0.5f), "timeout");
-
 		if (playerWon == true) await ShowSplash(_splashWin);
 		else if (playerWon == false) await ShowSplash(_splashLose);
 		else await ShowSplash(_splashDraw);
-
 		StartGame();
 	}
 
