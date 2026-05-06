@@ -123,7 +123,7 @@ public partial class StatJack : Node2D, IBaseGame
 	{
 		if (_isAnimating || _waitingForClick) return;
 		
-		int pokemonId = GameUtils.GetRandomIdByGen(_currentGeneration);
+		int pokemonId = GameUtils.GetRandomIdByGenRange(1, _currentGeneration);
 		// We pass the Parent (CardPlayer) and the Child (SpritePlayer)
 		await AnimateCardDraw(_cardPlayer, _spritePlayer, pokemonId);
 
@@ -140,7 +140,7 @@ public partial class StatJack : Node2D, IBaseGame
 
 		while (_dealerTotal < DealerStopThreshold)
 		{
-			int pokemonId = GameUtils.GetRandomIdByGen(_currentGeneration);
+			int pokemonId = GameUtils.GetRandomIdByGenRange(1, _currentGeneration);
 			await AnimateCardDraw(_cardDealer, _spriteDealer, pokemonId);
 			
 			_dealerTotal += GetStatValue(pokemonId, _currentStatMode);
