@@ -98,7 +98,7 @@ text = "Up to Pokémon generation: 1"
 unique_name_in_owner = true
 layout_mode = 2
 min_value = 1.0
-max_value = 4.0
+max_value = 8.0
 value = 1.0
 
 [node name="HSeparator2" type="HSeparator" parent="MainUI/HBoxContainer/Sidebar/VBoxContainer" unique_id=894389011]
