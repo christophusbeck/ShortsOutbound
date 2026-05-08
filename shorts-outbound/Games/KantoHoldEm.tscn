@@ -6,6 +6,10 @@
 [ext_resource type="Texture2D" uid="uid://byno5c3by1ta" path="res://Assets/card_front.png" id="4_43u7l"]
 [ext_resource type="Texture2D" uid="uid://dc0e2nrpi3urg" path="res://Assets/Pokesprites/0001.png" id="5_qn8uw"]
 [ext_resource type="Texture2D" uid="uid://bg1thhypo8r4q" path="res://Assets/sign.png" id="6_57klx"]
+[ext_resource type="Texture2D" uid="uid://bpovr4wytuht0" path="res://Assets/kantoholdem_splash_rules.png" id="7_p5o6j"]
+[ext_resource type="Texture2D" uid="uid://be3ed2cfndjk2" path="res://Assets/kantoholdem_splash_win.png" id="8_dxh7o"]
+[ext_resource type="Texture2D" uid="uid://7vhius1ux3cs" path="res://Assets/kantoholdem_splash_draw.png" id="9_phvig"]
+[ext_resource type="Texture2D" uid="uid://bngka3o1ovf67" path="res://Assets/kantoholdem_splash_lose.png" id="10_7ppiw"]
 
 [node name="KantoHoldEm" type="Node2D" unique_id=100165382]
 script = ExtResource("1_7wsep")
@@ -253,3 +257,31 @@ theme_override_font_sizes/font_size = 29
 text = "Showdown"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="SplashStart" type="TextureButton" parent="." unique_id=3465908]
+unique_name_in_owner = true
+visible = false
+offset_right = 40.0
+offset_bottom = 40.0
+texture_normal = ExtResource("7_p5o6j")
+
+[node name="SplashWin" type="TextureButton" parent="." unique_id=1114500063]
+unique_name_in_owner = true
+visible = false
+offset_right = 40.0
+offset_bottom = 40.0
+texture_normal = ExtResource("8_dxh7o")
+
+[node name="SplashDraw" type="TextureButton" parent="." unique_id=673898555]
+unique_name_in_owner = true
+visible = false
+offset_right = 40.0
+offset_bottom = 40.0
+texture_normal = ExtResource("9_phvig")
+
+[node name="SplashLose" type="TextureButton" parent="." unique_id=1544055408]
+unique_name_in_owner = true
+visible = false
+offset_right = 40.0
+offset_bottom = 40.0
+texture_normal = ExtResource("10_7ppiw")
