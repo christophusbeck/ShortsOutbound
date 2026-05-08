@@ -1,6 +1,255 @@
 [gd_scene format=3 uid="uid://b1qm05pmm037h"]
 
 [ext_resource type="Script" uid="uid://bo2i6adt7jdvj" path="res://Games/KantoHoldEm.cs" id="1_7wsep"]
+[ext_resource type="Texture2D" uid="uid://dk1ulckdw11hu" path="res://Assets/route_1_background.png" id="2_j3ox5"]
+[ext_resource type="Texture2D" uid="uid://wqge8i1lxabu" path="res://Assets/card_back.png" id="3_57klx"]
+[ext_resource type="Texture2D" uid="uid://byno5c3by1ta" path="res://Assets/card_front.png" id="4_43u7l"]
+[ext_resource type="Texture2D" uid="uid://dc0e2nrpi3urg" path="res://Assets/Pokesprites/0001.png" id="5_qn8uw"]
+[ext_resource type="Texture2D" uid="uid://bg1thhypo8r4q" path="res://Assets/sign.png" id="6_57klx"]
 
 [node name="KantoHoldEm" type="Node2D" unique_id=100165382]
 script = ExtResource("1_7wsep")
+
+[node name="Background" type="TextureRect" parent="." unique_id=1659823482]
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("2_j3ox5")
+
+[node name="CardDeck" type="TextureRect" parent="." unique_id=899563720]
+unique_name_in_owner = true
+offset_left = 5.0
+offset_top = 550.0
+offset_right = 110.0
+offset_bottom = 705.0
+texture = ExtResource("3_57klx")
+expand_mode = 1
+
+[node name="CardBack" type="TextureRect" parent="." unique_id=1986245111]
+unique_name_in_owner = true
+offset_left = 5.0
+offset_top = 550.0
+offset_right = 110.0
+offset_bottom = 705.0
+texture = ExtResource("3_57klx")
+expand_mode = 1
+
+[node name="CardDealerFront1" type="TextureRect" parent="." unique_id=414214663]
+unique_name_in_owner = true
+offset_left = 75.0
+offset_top = 40.0
+offset_right = 180.0
+offset_bottom = 195.0
+texture = ExtResource("4_43u7l")
+expand_mode = 1
+
+[node name="CardDealerSprite1" type="TextureRect" parent="CardDealerFront1" unique_id=277822004]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -38.5
+offset_top = -94.0
+offset_right = 38.5
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+texture = ExtResource("5_qn8uw")
+expand_mode = 1
+
+[node name="CardDealerFront2" type="TextureRect" parent="." unique_id=1793343797]
+unique_name_in_owner = true
+offset_left = 190.0
+offset_top = 40.0
+offset_right = 295.0
+offset_bottom = 195.0
+texture = ExtResource("4_43u7l")
+expand_mode = 1
+
+[node name="CardDealerSprite2" type="TextureRect" parent="CardDealerFront2" unique_id=902417417]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -38.5
+offset_top = -94.0
+offset_right = 38.5
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+texture = ExtResource("5_qn8uw")
+expand_mode = 1
+
+[node name="CardDealerFront3" type="TextureRect" parent="." unique_id=1919165852]
+unique_name_in_owner = true
+offset_left = 305.0
+offset_top = 40.0
+offset_right = 410.0
+offset_bottom = 195.0
+texture = ExtResource("4_43u7l")
+expand_mode = 1
+
+[node name="CardDealerSprite3" type="TextureRect" parent="CardDealerFront3" unique_id=1193751176]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -38.5
+offset_top = -94.0
+offset_right = 38.5
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+texture = ExtResource("5_qn8uw")
+expand_mode = 1
+
+[node name="CardDealerBack1" type="TextureRect" parent="." unique_id=927678738]
+unique_name_in_owner = true
+offset_left = 75.0
+offset_top = 40.0
+offset_right = 180.0
+offset_bottom = 195.0
+texture = ExtResource("3_57klx")
+expand_mode = 1
+
+[node name="CardDealerBack2" type="TextureRect" parent="." unique_id=1868734215]
+unique_name_in_owner = true
+offset_left = 190.0
+offset_top = 40.0
+offset_right = 295.0
+offset_bottom = 195.0
+texture = ExtResource("3_57klx")
+expand_mode = 1
+
+[node name="CardDealerBack3" type="TextureRect" parent="." unique_id=778044121]
+unique_name_in_owner = true
+offset_left = 305.0
+offset_top = 40.0
+offset_right = 410.0
+offset_bottom = 195.0
+texture = ExtResource("3_57klx")
+expand_mode = 1
+
+[node name="CardPlayerFront1" type="TextureButton" parent="." unique_id=1943927684]
+unique_name_in_owner = true
+offset_left = 75.0
+offset_top = 300.0
+offset_right = 180.0
+offset_bottom = 455.0
+texture_normal = ExtResource("4_43u7l")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="CardPlayerSprite1" type="TextureRect" parent="CardPlayerFront1" unique_id=1264540428]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -38.5
+offset_top = -94.0
+offset_right = 38.5
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+texture = ExtResource("5_qn8uw")
+expand_mode = 1
+
+[node name="CardPlayerFront2" type="TextureButton" parent="." unique_id=322690563]
+unique_name_in_owner = true
+offset_left = 190.0
+offset_top = 300.0
+offset_right = 295.0
+offset_bottom = 455.0
+texture_normal = ExtResource("4_43u7l")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="CardPlayerSprite2" type="TextureRect" parent="CardPlayerFront2" unique_id=1458330455]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -38.5
+offset_top = -94.0
+offset_right = 38.5
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+texture = ExtResource("5_qn8uw")
+expand_mode = 1
+
+[node name="CardPlayerFront3" type="TextureButton" parent="." unique_id=1204656616]
+unique_name_in_owner = true
+offset_left = 305.0
+offset_top = 300.0
+offset_right = 410.0
+offset_bottom = 455.0
+texture_normal = ExtResource("4_43u7l")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="CardPlayerSprite3" type="TextureRect" parent="CardPlayerFront3" unique_id=1560073638]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -38.5
+offset_top = -94.0
+offset_right = 38.5
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 2
+texture = ExtResource("5_qn8uw")
+expand_mode = 1
+
+[node name="ShowdownButton" type="TextureButton" parent="." unique_id=899143761]
+unique_name_in_owner = true
+offset_left = 290.0
+offset_top = 550.0
+offset_right = 475.0
+offset_bottom = 645.0
+texture_normal = ExtResource("6_57klx")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="Label" type="Label" parent="ShowdownButton" unique_id=1169327393]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -75.5
+offset_top = -25.5
+offset_right = 78.5
+offset_bottom = 14.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 29
+text = "Showdown"
+horizontal_alignment = 1
+vertical_alignment = 1
