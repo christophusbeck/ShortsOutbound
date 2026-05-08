@@ -24,6 +24,7 @@ public partial class KantoHoldEm : Node2D, IBaseGame
 	private List<int> _playerHand = new List<int>();
 	private List<int> _dealerHand = new List<int>();
 	private bool[] _hasDiscarded = new bool[3];
+	private float _dealerEdge = 0.05f; //Dealer's chance of getting the best hand, cascading down
 
 	private TextureRect[] _dealerFronts = new TextureRect[3];
 	private TextureRect[] _dealerBacks = new TextureRect[3];
@@ -65,14 +66,19 @@ public partial class KantoHoldEm : Node2D, IBaseGame
 		if (_isAnimating) return;
 		ResetTable();
 		
+		_dealerEdge = GetDynamicDealerEdge(_dealerEdge, _currentGeneration);
+		
+		// Player still gets a standard random hand
 		for (int i = 0; i < 3; i++)
 		{
 			_playerHand.Add(GameUtils.GetRandomIdByGenRange(1, _currentGeneration));
-			_dealerHand.Add(GameUtils.GetRandomIdByGenRange(1, _currentGeneration));
 		}
-
 		_playerHand.Sort();
 
+		// FIXED: Dealer now uses the new cascading logic
+		_dealerHand = GenerateDealerHand();
+
+		// Animate the dealing process
 		for (int i = 0; i < 3; i++)
 		{
 			await AnimateCardMovement(_playerFronts[i], _playerSprites[i], _playerHand[i], true);
@@ -81,6 +87,206 @@ public partial class KantoHoldEm : Node2D, IBaseGame
 
 		_canDiscard = true;
 		_showdownButton.Visible = true;
+	}
+	
+	private List<int> GenerateDealerHand()
+	{
+		// We iterate from highest rank to lowest
+		// HandRank is an enum, so we can cast from int
+		for (int r = (int)HandRank.LegendaryTrio; r > (int)HandRank.Singleton; r--)
+		{
+			if (GD.Randf() < _dealerEdge)
+			{
+				return GenerateSpecificRank((HandRank)r);
+			}
+		}
+		
+		// Default: Just a random hand (Singleton or whatever nature provides)
+		return new List<int> { 
+			GameUtils.GetRandomIdByGenRange(1, _currentGeneration),
+			GameUtils.GetRandomIdByGenRange(1, _currentGeneration),
+			GameUtils.GetRandomIdByGenRange(1, _currentGeneration)
+		};
+	}
+	
+	
+	
+	private List<int> GetAllFamilyMembers(int baseId)
+	{
+		// Access the static dictionary directly to get the Max for the current generation
+		int maxId = GameUtils.GenBounds[_currentGeneration].Max;
+		
+		List<int> members = new List<int>();
+		
+		// Only add if it's within the current gen range
+		if (baseId <= maxId)
+		{
+			members.Add(baseId);
+		}
+		else return members; // If base is too high, the whole family is too high
+		
+		if (_evoData.ContainsKey(baseId))
+		{
+			foreach (int child in _evoData[baseId])
+			{
+				// Only recurse if the child is within the current gen
+				if (child <= maxId)
+				{
+					var childFamily = GetAllFamilyMembers(child);
+					foreach(var member in childFamily)
+					{
+						if (!members.Contains(member)) members.Add(member);
+					}
+				}
+			}
+		}
+		return members.Distinct().ToList();
+	}
+
+	private int GetRandomBaseWithEvolutions(int requiredEvos)
+	{
+		// Filter _evoData for entries that lead to a chain of 'requiredEvos'
+		// For simplicity, you could pre-calculate this list in _Ready
+		var candidates = _evoData.Keys.Where(k => _evoData[k].Length > 0).ToList();
+		return candidates[(int)GD.Randi() % (int)candidates.Count];
+	}
+	
+	private float GetDynamicDealerEdge(float baseEdge, int activeGens)
+	{
+		float basePoolSize = GameUtils.GenBounds[1].Max; // 151
+		float currentPoolSize = GameUtils.GenBounds[activeGens].Max;
+
+		// 1. Calculate the ratio
+		float ratio = basePoolSize / currentPoolSize;
+
+		// 2. Apply Power Decay 
+		float scalingFactor = Mathf.Pow(ratio, 1.05f); 
+
+		float calculatedEdge = baseEdge * scalingFactor;
+
+		// 3. Optional: Set a hard minimum so the dealer isn't 100% useless
+		return Mathf.Max(calculatedEdge, 0.005f); 
+	}
+	
+	private List<int> GenerateSpecificRank(HandRank rank)
+	{
+		List<int> hand = new List<int>();
+		int gen = _currentGeneration;
+		// Get the generation cap directly from the static dictionary
+		int maxId = GameUtils.GenBounds[gen].Max;
+		
+		bool found = false;
+		int attempts = 0;
+		const int MAX_ATTEMPTS = 1000;
+
+		switch (rank)
+		{
+			case HandRank.LegendaryTrio:
+				// Check gen to ensure birds don't appear in later-only setups 
+				// or ensure gen 1 logic
+				int[][] trios = { new[] { 144, 145, 146 } }; 
+				int[] selectedTrio = trios[GD.Randi() % trios.Length];
+				hand.AddRange(selectedTrio);
+				break;
+
+			case HandRank.EvoFlush:
+				while (!found && attempts < MAX_ATTEMPTS)
+				{
+					attempts++;
+					int id = GameUtils.GetRandomIdByGenRange(1, gen);
+					if (_evoData.ContainsKey(id) && id <= maxId)
+					{
+						foreach (int child in _evoData[id])
+						{
+							if (child <= maxId && _evoData.ContainsKey(child))
+							{
+								int grandchild = _evoData[child][GD.Randi() % _evoData[child].Length];
+								if (grandchild <= maxId)
+								{
+									hand.AddRange(new[] { id, child, grandchild });
+									found = true;
+									break;
+								}
+							}
+						}
+					}
+				}
+				break;
+
+			case HandRank.ThreeOfFamily:
+				while (!found && attempts < MAX_ATTEMPTS)
+				{
+					attempts++;
+					int id = GameUtils.GetRandomIdByGenRange(1, gen);
+					int baseForm = FindBaseForm(id, _evoData);
+					List<int> family = GetAllFamilyMembers(baseForm);
+					if (family.Count >= 3)
+					{
+						hand = family.OrderBy(x => GD.Randi()).Take(3).ToList();
+						found = true;
+					}
+				}
+				break;
+
+			case HandRank.TwoConsecutiveEvo:
+				while (!found && attempts < MAX_ATTEMPTS)
+				{
+					attempts++;
+					int id = GameUtils.GetRandomIdByGenRange(1, gen);
+					if (_evoData.ContainsKey(id) && id <= maxId)
+					{
+						int child = _evoData[id][GD.Randi() % _evoData[id].Length];
+						if (child <= maxId)
+						{
+							hand.Add(id);
+							hand.Add(child);
+							hand.Add(GameUtils.GetRandomIdByGenRange(1, gen));
+							found = true;
+						}
+					}
+				}
+				break;
+
+			case HandRank.TwoOfFamily:
+				while (!found && attempts < MAX_ATTEMPTS)
+				{
+					attempts++;
+					int id = GameUtils.GetRandomIdByGenRange(1, gen);
+					int baseForm = FindBaseForm(id, _evoData);
+					List<int> family = GetAllFamilyMembers(baseForm);
+					if (family.Count >= 2)
+					{
+						hand = family.OrderBy(x => GD.Randi()).Take(2).ToList();
+						hand.Add(GameUtils.GetRandomIdByGenRange(1, gen));
+						found = true;
+					}
+				}
+				break;
+
+			case HandRank.Triplets:
+				int tripletId = GameUtils.GetRandomIdByGenRange(1, gen);
+				hand.AddRange(new[] { tripletId, tripletId, tripletId });
+				break;
+
+			case HandRank.Twins:
+				int twinId = GameUtils.GetRandomIdByGenRange(1, gen);
+				hand.AddRange(new[] { twinId, twinId, GameUtils.GetRandomIdByGenRange(1, gen) });
+				break;
+
+			default:
+				for (int i = 0; i < 3; i++)
+					hand.Add(GameUtils.GetRandomIdByGenRange(1, gen));
+				break;
+		}
+
+		// Fallback logic
+		if (hand.Count < 3)
+		{
+			for (int i = hand.Count; i < 3; i++)
+				hand.Add(GameUtils.GetRandomIdByGenRange(1, gen));
+		}
+
+		return hand;
 	}
 
 	private async void OnCardDiscardPressed(int index)
@@ -200,13 +406,20 @@ public partial class KantoHoldEm : Node2D, IBaseGame
 
 		for (int i = 0; i < 3; i++)
 		{
+			// Hide elements
 			_dealerFronts[i].Visible = false;
 			_dealerBacks[i].Visible = false;
 			_playerFronts[i].Visible = false;
-			_playerFronts[i].Modulate = Colors.White;
 			
-			// Safety: Ensure they are in their correct slots on reset
-			// If they are under a GridContainer or HBox, you might need to use Position instead of GlobalPosition
+			// --- NEW: Reset Highlights and Interaction States ---
+			_playerFronts[i].SelfModulate = Colors.White;
+			_playerFronts[i].Modulate = Colors.White; // Reset the "dimmed" look from discards
+			_playerFronts[i].Disabled = false;
+			
+			_dealerFronts[i].SelfModulate = Colors.White;
+			
+			// Ensure cards are back in their slots if they were moved during Showdown
+			_playerFronts[i].GlobalPosition = GetNode<Control>($"%CardPlayerFront{i+1}").GlobalPosition;
 		}
 	}
 
@@ -312,48 +525,7 @@ public partial class KantoHoldEm : Node2D, IBaseGame
 		return pokemonId;
 	}
 
-	private (HandRank rank, int tieBreakerBST) EvaluateHand(List<int> handList)
-	{
-		int[] hand = handList.ToArray();
-		Array.Sort(hand);
 
-		// 1. Legendary Trio
-		if (IsLegendaryTrio(hand[0], hand[1], hand[2]))
-			return (HandRank.LegendaryTrio, hand.Max(id => GetBST(id)));
-
-		// 2. Evo Flush (Three consecutive)
-		if (CheckForEvolutionStraight(hand[0], hand[1], hand[2]))
-			return (HandRank.EvoFlush, GetBST(hand[2])); // Highest evo in straight is tiebreaker
-
-		// 3. Triplets (Three of the same)
-		if (hand[0] == hand[1] && hand[1] == hand[2])
-			return (HandRank.Triplets, GetBST(hand[0]));
-
-		// 4. Three of the same family
-		if (AreSameFamily(hand))
-			return (HandRank.ThreeOfFamily, hand.Max(id => GetBST(id)));
-
-		// 5. Two consecutive evolutions
-		// We need to find which two are consecutive for the tiebreaker
-		if (IsConsecutive(hand[0], hand[1])) return (HandRank.TwoConsecutiveEvo, Math.Max(GetBST(hand[0]), GetBST(hand[1])));
-		if (IsConsecutive(hand[1], hand[2])) return (HandRank.TwoConsecutiveEvo, Math.Max(GetBST(hand[1]), GetBST(hand[2])));
-		if (IsConsecutive(hand[0], hand[2])) return (HandRank.TwoConsecutiveEvo, Math.Max(GetBST(hand[0]), GetBST(hand[2])));
-
-		// 6. Twins
-		if (hand[0] == hand[1] || hand[1] == hand[2] || hand[0] == hand[2])
-		{
-			int twinId = (hand[0] == hand[1]) ? hand[0] : hand[1]; // Simple check since sorted
-			return (HandRank.Twins, GetBST(twinId));
-		}
-
-		// 7. Two of same family
-		int familyId = FindFamilyMatch(hand);
-		if (familyId != -1)
-			return (HandRank.TwoOfFamily, familyId); // familyId is already the BST of the best member
-
-		// 8. Singleton
-		return (HandRank.Singleton, hand.Max(id => GetBST(id)));
-	}
 
 	// Helper for Two Consecutive
 	private bool IsConsecutive(int a, int b)
@@ -376,38 +548,85 @@ public partial class KantoHoldEm : Node2D, IBaseGame
 		return -1;
 	}
 	
+	// Add a helper method to apply the highlight
+	private void ApplyHighlights(CanvasItem[] cardNodes, bool[] highlightMask)
+	{
+		Color highlightColor = new Color(1.2f, 1.2f, 0.8f); // A slight glow/yellow tint
+		for (int i = 0; i < 3; i++)
+		{
+			cardNodes[i].SelfModulate = highlightMask[i] ? highlightColor : Colors.White;
+		}
+	}
+
+	
+	private (HandRank rank, int tieBreakerBST, bool[] mask) EvaluateHand(List<int> handList)
+	{
+		int[] hand = handList.ToArray();
+		// IMPORTANT: hand is already sorted from OnShowdownPressed
+		bool[] mask = new bool[3];
+
+		// 1. Legendary Trio
+		if (IsLegendaryTrio(hand[0], hand[1], hand[2]))
+			return (HandRank.LegendaryTrio, hand.Max(id => GetBST(id)), new bool[] { true, true, true });
+
+		// 2. Evo Flush
+		if (CheckForEvolutionStraight(hand[0], hand[1], hand[2]))
+			return (HandRank.EvoFlush, GetBST(hand[2]), new bool[] { true, true, true });
+
+		// 3. Triplets
+		if (hand[0] == hand[1] && hand[1] == hand[2])
+			return (HandRank.Triplets, GetBST(hand[0]), new bool[] { true, true, true });
+
+		// 4. Three of Family
+		if (AreSameFamily(hand))
+			return (HandRank.ThreeOfFamily, hand.Max(id => GetBST(id)), new bool[] { true, true, true });
+
+		// 5. Two Consecutive
+		if (IsConsecutive(hand[0], hand[1])) { mask[0] = true; mask[1] = true; return (HandRank.TwoConsecutiveEvo, Math.Max(GetBST(hand[0]), GetBST(hand[1])), mask); }
+		if (IsConsecutive(hand[1], hand[2])) { mask[1] = true; mask[2] = true; return (HandRank.TwoConsecutiveEvo, Math.Max(GetBST(hand[1]), GetBST(hand[2])), mask); }
+		if (IsConsecutive(hand[0], hand[2])) { mask[0] = true; mask[2] = true; return (HandRank.TwoConsecutiveEvo, Math.Max(GetBST(hand[0]), GetBST(hand[2])), mask); }
+
+		// 6. Twins
+		if (hand[0] == hand[1]) { mask[0] = true; mask[1] = true; return (HandRank.Twins, GetBST(hand[0]), mask); }
+		if (hand[1] == hand[2]) { mask[1] = true; mask[2] = true; return (HandRank.Twins, GetBST(hand[1]), mask); }
+		if (hand[0] == hand[2]) { mask[0] = true; mask[2] = true; return (HandRank.Twins, GetBST(hand[0]), mask); }
+
+		// 7. Two of Family
+		int b0 = FindBaseForm(hand[0], _evoData);
+		int b1 = FindBaseForm(hand[1], _evoData);
+		int b2 = FindBaseForm(hand[2], _evoData);
+		if (b0 == b1) { mask[0] = true; mask[1] = true; return (HandRank.TwoOfFamily, Math.Max(GetBST(hand[0]), GetBST(hand[1])), mask); }
+		if (b1 == b2) { mask[1] = true; mask[2] = true; return (HandRank.TwoOfFamily, Math.Max(GetBST(hand[1]), GetBST(hand[2])), mask); }
+		if (b0 == b2) { mask[0] = true; mask[2] = true; return (HandRank.TwoOfFamily, Math.Max(GetBST(hand[0]), GetBST(hand[2])), mask); }
+
+		// 8. Singleton - Highlight the highest BST card
+		int maxIdx = 0;
+		int maxBST = -1;
+		for(int i=0; i<3; i++) {
+			int current = GetBST(hand[i]);
+			if(current > maxBST) { maxBST = current; maxIdx = i; }
+		}
+		mask[maxIdx] = true;
+		return (HandRank.Singleton, maxBST, mask);
+	}
+
+	
 	private void EvaluateWinner()
 	{
-		var playerResult = EvaluateHand(_playerHand);
-		var dealerResult = EvaluateHand(_dealerHand);
+		var pResult = EvaluateHand(_playerHand);
+		var dResult = EvaluateHand(_dealerHand);
 
-		GD.Print($"--- Results ---");
-		GD.Print($"Player: {playerResult.rank} (Tie-breaker BST: {playerResult.tieBreakerBST})");
-		GD.Print($"Dealer: {dealerResult.rank} (Tie-breaker BST: {dealerResult.tieBreakerBST})");
+		// Apply the visual highlights
+		ApplyHighlights(_playerFronts, pResult.mask);
+		ApplyHighlights(_dealerFronts, dResult.mask);
 
-		if (playerResult.rank > dealerResult.rank)
-		{
-			GD.Print(">>> PLAYER WINS (Higher Figure) <<<");
-		}
-		else if (playerResult.rank < dealerResult.rank)
-		{
-			GD.Print(">>> DEALER WINS (Higher Figure) <<<");
-		}
-		else
-		{
-			// Ranks are equal, check tie-breaker BST
-			if (playerResult.tieBreakerBST > dealerResult.tieBreakerBST)
-			{
-				GD.Print(">>> PLAYER WINS (Tie-breaker BST) <<<");
-			}
-			else if (playerResult.tieBreakerBST < dealerResult.tieBreakerBST)
-			{
-				GD.Print(">>> DEALER WINS (Tie-breaker BST) <<<");
-			}
-			else
-			{
-				GD.Print(">>> IT'S A TIE! <<<");
-			}
+		// ... Keep your existing GD.Print logic here ...
+		if (pResult.rank > dResult.rank) GD.Print("PLAYER WINS");
+		else if (pResult.rank < dResult.rank) GD.Print("DEALER WINS");
+		else {
+			if (pResult.tieBreakerBST > dResult.tieBreakerBST) GD.Print("PLAYER WINS (BST)");
+			else if (pResult.tieBreakerBST < dResult.tieBreakerBST) GD.Print("DEALER WINS (BST)");
+			else GD.Print("TIE");
 		}
 	}
 

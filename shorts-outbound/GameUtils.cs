@@ -65,7 +65,7 @@ public static class GameUtils
 	}
 	// --- Generations ---
 	// A mapping of generation number to (MinID, MaxID)
-	private static readonly Dictionary<int, (int Min, int Max)> GenBounds = new()
+	public static readonly Dictionary<int, (int Min, int Max)> GenBounds = new()
 	{
 		{ 1, (1, 151) },
 		{ 2, (152, 251) },
@@ -76,6 +76,8 @@ public static class GameUtils
 		{ 7, (722, 809) },
 		{ 8, (810, 1024) }
 	};
+	
+
 
 	// --- ASSET LOADING ---
 
