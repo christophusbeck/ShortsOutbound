@@ -1,0 +1,88 @@
+[gd_scene format=3 uid="uid://cnvedgkxweppn"]
+
+[ext_resource type="Script" uid="uid://hc4dl5wo28b0" path="res://Games/PokePairs.cs" id="1_1wrs7"]
+[ext_resource type="Texture2D" uid="uid://bwpuine5kmjbw" path="res://Assets/route_111_background.png" id="2_50fi3"]
+[ext_resource type="Texture2D" uid="uid://wqge8i1lxabu" path="res://Assets/card_back.png" id="3_qgjyq"]
+[ext_resource type="Texture2D" uid="uid://byno5c3by1ta" path="res://Assets/card_front.png" id="4_6jd0l"]
+[ext_resource type="Texture2D" uid="uid://dc0e2nrpi3urg" path="res://Assets/Pokesprites/0001.png" id="5_rybvj"]
+[ext_resource type="Texture2D" uid="uid://blskkfwo0a7lx" path="res://Assets/heart.png" id="6_qgjyq"]
+
+[node name="PokePairs" type="Node2D" unique_id=1377988229]
+script = ExtResource("1_1wrs7")
+
+[node name="Background" type="TextureRect" parent="." unique_id=1475826896]
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("2_50fi3")
+
+[node name="CardDeck" type="TextureButton" parent="." unique_id=931700986]
+unique_name_in_owner = true
+offset_left = 10.0
+offset_top = 720.0
+offset_right = 95.0
+offset_bottom = 845.0
+texture_normal = ExtResource("3_qgjyq")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="CardFront" type="TextureButton" parent="." unique_id=1105352882]
+unique_name_in_owner = true
+offset_left = 10.0
+offset_top = 720.0
+offset_right = 95.0
+offset_bottom = 845.0
+texture_normal = ExtResource("4_6jd0l")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="CardFrontSprite" type="TextureRect" parent="CardFront" unique_id=395467525]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -31.5
+offset_top = -75.0
+offset_right = 30.5
+offset_bottom = -13.0
+grow_horizontal = 2
+grow_vertical = 0
+texture = ExtResource("5_rybvj")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="CardBack" type="TextureButton" parent="." unique_id=222584873]
+unique_name_in_owner = true
+offset_left = 10.0
+offset_top = 720.0
+offset_right = 95.0
+offset_bottom = 845.0
+texture_normal = ExtResource("3_qgjyq")
+ignore_texture_size = true
+stretch_mode = 4
+
+[node name="Heart" type="TextureRect" parent="." unique_id=1312137785]
+offset_left = 348.0
+offset_top = 523.0
+offset_right = 484.0
+offset_bottom = 649.0
+texture = ExtResource("6_qgjyq")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="LivesLeftLabel" type="Label" parent="Heart" unique_id=1289234234]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 135.0
+offset_bottom = 125.0
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 1
+theme_override_constants/outline_size = 15
+theme_override_font_sizes/font_size = 70
+text = "99"
+horizontal_alignment = 1
+vertical_alignment = 1
