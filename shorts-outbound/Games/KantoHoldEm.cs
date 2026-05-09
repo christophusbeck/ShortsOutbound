@@ -594,12 +594,13 @@ public partial class KantoHoldEm : Node2D, IBaseGame
 	}
 	
 	// Add a helper method to apply the highlight
-	private void ApplyHighlights(CanvasItem[] cardNodes, bool[] highlightMask)
+	private void ApplyHighlights(CanvasItem[] cardNodes, bool[] highlightMask, Color color)
 	{
-		Color highlightColor = new Color(1.2f, 1.2f, 0.8f); // A slight glow/yellow tint
 		for (int i = 0; i < 3; i++)
 		{
-			cardNodes[i].SelfModulate = highlightMask[i] ? highlightColor : Colors.White;
+			// If the card is part of the rank (mask is true), use the passed color.
+			// Otherwise, reset it to white (no highlight).
+			cardNodes[i].SelfModulate = highlightMask[i] ? color : Colors.White;
 		}
 	}
 
@@ -658,32 +659,49 @@ public partial class KantoHoldEm : Node2D, IBaseGame
 	
 	private async void EvaluateWinner()
 	{
-		var pResult = EvaluateHand(_playerHand);
-		var dResult = EvaluateHand(_dealerHand);
+	var pResult = EvaluateHand(_playerHand);
+	var dResult = EvaluateHand(_dealerHand);
 
-		ApplyHighlights(_playerFronts, pResult.mask);
-		ApplyHighlights(_dealerFronts, dResult.mask);
+	Color winColor = new Color(0.5f, 1.2f, 0.5f); // Greenish glow
+	Color loseColor = new Color(1.2f, 0.5f, 0.5f); // Reddish glow
+	Color drawColor = new Color(1.2f, 1.2f, 0.8f); // Your original yellow
 
-		// Wait 1.5 seconds so the player can actually see the "Showdown" results
-		await ToSignal(GetTree().CreateTimer(1.5f), "timeout");
+	bool playerWins = false;
+	bool isDraw = false;
 
-		if (pResult.rank > dResult.rank) 
-		{
-			_splashWin.Visible = true;
-		}
-		else if (pResult.rank < dResult.rank) 
-		{
-			_splashLose.Visible = true;
-		}
-		else 
-		{
-			if (pResult.tieBreakerBST > dResult.tieBreakerBST) 
-				_splashWin.Visible = true;
-			else if (pResult.tieBreakerBST < dResult.tieBreakerBST) 
-				_splashLose.Visible = true;
-			else 
-				_splashDraw.Visible = true;
-		}
+	// Logic to determine winner
+	if (pResult.rank > dResult.rank) playerWins = true;
+	else if (pResult.rank < dResult.rank) playerWins = false;
+	else
+	{
+		if (pResult.tieBreakerBST > dResult.tieBreakerBST) playerWins = true;
+		else if (pResult.tieBreakerBST < dResult.tieBreakerBST) playerWins = false;
+		else isDraw = true;
 	}
+
+	// Apply colors based on result
+	if (isDraw)
+	{
+		ApplyHighlights(_playerFronts, pResult.mask, drawColor);
+		ApplyHighlights(_dealerFronts, dResult.mask, drawColor);
+	}
+	else if (playerWins)
+	{
+		ApplyHighlights(_playerFronts, pResult.mask, winColor);
+		ApplyHighlights(_dealerFronts, dResult.mask, loseColor);
+	}
+	else
+	{
+		ApplyHighlights(_playerFronts, pResult.mask, loseColor);
+		ApplyHighlights(_dealerFronts, dResult.mask, winColor);
+	}
+
+	// Dramatic pause before showing the splash buttons
+	await ToSignal(GetTree().CreateTimer(1.5f), "timeout");
+
+	if (isDraw) _splashDraw.Visible = true;
+	else if (playerWins) _splashWin.Visible = true;
+	else _splashLose.Visible = true;
+}
 
 }
