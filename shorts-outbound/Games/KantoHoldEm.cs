@@ -34,6 +34,8 @@ public partial class KantoHoldEm : Node2D, IBaseGame
 
 	private TextureRect _cardBack, _cardDeck;
 	private TextureButton _showdownButton;
+	private TextureButton _splashStart, _splashWin, _splashDraw, _splashLose;
+	
 	private bool _isAnimating = false;
 	private bool _canDiscard = false;
 
@@ -43,6 +45,11 @@ public partial class KantoHoldEm : Node2D, IBaseGame
 		_cardBack = GetNode<TextureRect>("%CardBack");
 		_cardDeck = GetNode<TextureRect>("%CardDeck");
 		_showdownButton = GetNode<TextureButton>("%ShowdownButton");
+		
+		_splashStart = GetNode<TextureButton>("%SplashStart");
+		_splashWin = GetNode<TextureButton>("%SplashWin");
+		_splashDraw = GetNode<TextureButton>("%SplashDraw");
+		_splashLose = GetNode<TextureButton>("%SplashLose");
 
 		for (int i = 0; i < 3; i++)
 		{
@@ -58,7 +65,37 @@ public partial class KantoHoldEm : Node2D, IBaseGame
 		}
 
 		_showdownButton.Pressed += OnShowdownPressed;
-		ResetTable();
+		
+		// Hide end-game splashes at start
+		_splashWin.Visible = false;
+		_splashDraw.Visible = false;
+		_splashLose.Visible = false;
+
+		// Show start splash
+		_splashStart.Visible = true;
+
+		// Connect splash signals
+		_splashStart.Pressed += OnSplashStartPressed;
+		_splashWin.Pressed += OnRestartGamePressed;
+		_splashDraw.Pressed += OnRestartGamePressed;
+		_splashLose.Pressed += OnRestartGamePressed;
+		
+		//ResetTable();
+	}
+	private void OnSplashStartPressed()
+	{
+		_splashStart.Visible = false;
+		StartGame(); // This kicks off the first deal
+	}
+
+	private void OnRestartGamePressed()
+	{
+		// Hide all possible end splashes
+		_splashWin.Visible = false;
+		_splashDraw.Visible = false;
+		_splashLose.Visible = false;
+		
+		StartGame(); // Reset and deal new cards
 	}
 
 	public async void StartGame()
@@ -611,22 +648,33 @@ public partial class KantoHoldEm : Node2D, IBaseGame
 	}
 
 	
-	private void EvaluateWinner()
+	private async void EvaluateWinner()
 	{
 		var pResult = EvaluateHand(_playerHand);
 		var dResult = EvaluateHand(_dealerHand);
 
-		// Apply the visual highlights
 		ApplyHighlights(_playerFronts, pResult.mask);
 		ApplyHighlights(_dealerFronts, dResult.mask);
 
-		// ... Keep your existing GD.Print logic here ...
-		if (pResult.rank > dResult.rank) GD.Print("PLAYER WINS");
-		else if (pResult.rank < dResult.rank) GD.Print("DEALER WINS");
-		else {
-			if (pResult.tieBreakerBST > dResult.tieBreakerBST) GD.Print("PLAYER WINS (BST)");
-			else if (pResult.tieBreakerBST < dResult.tieBreakerBST) GD.Print("DEALER WINS (BST)");
-			else GD.Print("TIE");
+		// Wait 1.5 seconds so the player can actually see the "Showdown" results
+		await ToSignal(GetTree().CreateTimer(1.5f), "timeout");
+
+		if (pResult.rank > dResult.rank) 
+		{
+			_splashWin.Visible = true;
+		}
+		else if (pResult.rank < dResult.rank) 
+		{
+			_splashLose.Visible = true;
+		}
+		else 
+		{
+			if (pResult.tieBreakerBST > dResult.tieBreakerBST) 
+				_splashWin.Visible = true;
+			else if (pResult.tieBreakerBST < dResult.tieBreakerBST) 
+				_splashLose.Visible = true;
+			else 
+				_splashDraw.Visible = true;
 		}
 	}
 
