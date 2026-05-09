@@ -231,13 +231,16 @@ public partial class KantoHoldEm : Node2D, IBaseGame
 				{
 					attempts++;
 					int id = GameUtils.GetRandomIdByGenRange(1, gen);
-					if (_evoData.ContainsKey(id) && id <= maxId)
+					// 1. Check if base exists and has children
+					if (_evoData.ContainsKey(id) && id <= maxId && _evoData[id].Length > 0)
 					{
 						foreach (int child in _evoData[id])
 						{
-							if (child <= maxId && _evoData.ContainsKey(child))
+							// 2. Check if child is within gen and HAS its own children (grandchild)
+							if (child <= maxId && _evoData.ContainsKey(child) && _evoData[child].Length > 0)
 							{
-								int grandchild = _evoData[child][GD.Randi() % _evoData[child].Length];
+								int grandchild = _evoData[child][(int)(GD.Randi() % (uint)_evoData[child].Length)];
+								
 								if (grandchild <= maxId)
 								{
 									hand.AddRange(new[] { id, child, grandchild });
@@ -270,9 +273,13 @@ public partial class KantoHoldEm : Node2D, IBaseGame
 				{
 					attempts++;
 					int id = GameUtils.GetRandomIdByGenRange(1, gen);
-					if (_evoData.ContainsKey(id) && id <= maxId)
+					
+					// Add check: id must exist AND have at least one evolution
+					if (_evoData.ContainsKey(id) && id <= maxId && _evoData[id].Length > 0)
 					{
-						int child = _evoData[id][GD.Randi() % _evoData[id].Length];
+						// Now it is safe to use modulo because Length is at least 1
+						int child = _evoData[id][(int)(GD.Randi() % (uint)_evoData[id].Length)];
+						
 						if (child <= maxId)
 						{
 							hand.Add(id);
