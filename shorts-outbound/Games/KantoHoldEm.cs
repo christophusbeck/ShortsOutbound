@@ -406,13 +406,20 @@ public partial class KantoHoldEm : Node2D, IBaseGame
 
 		for (int i = 0; i < 3; i++)
 		{
+			// Hide elements
 			_dealerFronts[i].Visible = false;
 			_dealerBacks[i].Visible = false;
 			_playerFronts[i].Visible = false;
-			_playerFronts[i].Modulate = Colors.White;
 			
-			// Safety: Ensure they are in their correct slots on reset
-			// If they are under a GridContainer or HBox, you might need to use Position instead of GlobalPosition
+			// --- NEW: Reset Highlights and Interaction States ---
+			_playerFronts[i].SelfModulate = Colors.White;
+			_playerFronts[i].Modulate = Colors.White; // Reset the "dimmed" look from discards
+			_playerFronts[i].Disabled = false;
+			
+			_dealerFronts[i].SelfModulate = Colors.White;
+			
+			// Ensure cards are back in their slots if they were moved during Showdown
+			_playerFronts[i].GlobalPosition = GetNode<Control>($"%CardPlayerFront{i+1}").GlobalPosition;
 		}
 	}
 
