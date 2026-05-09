@@ -11,12 +11,16 @@ public partial class PokePairs : Node2D, IBaseGame
 	[Export] public float Spacing = 10f;
 	private Vector2 _dynamicGridMargin = new Vector2(10, 10); // Distance from Top-Left corner
 	[Export] public float FixedYOffset = 25f;
+	
+	private bool _isInitialStart = true;
 
 	private int _currentGen = 1;
 	private List<TextureButton> _activeCards = new List<TextureButton>();
 	private TextureButton _firstSelected = null;
 	private TextureButton _secondSelected = null;
 	private bool _isProcessing = false;
+	private int _pairsFound = 0;
+	private int _totalPairs = 0;
 	
 	private int _lives = 0;
 
@@ -26,6 +30,10 @@ public partial class PokePairs : Node2D, IBaseGame
 	private TextureButton _cardFrontTemplate;
 	private TextureButton _cardDeckNode;
 	private Label _livesLabel;
+	
+	private TextureButton _splashTitle;
+	private TextureButton _splashWin;
+	private TextureButton _splashLose;
 
 	public override void _Ready()
 	{
@@ -35,10 +43,111 @@ public partial class PokePairs : Node2D, IBaseGame
 		_cardFrontTemplate = GetNode<TextureButton>("%CardFront");
 		_cardDeckNode = GetNode<TextureButton>("%CardDeck");
 		_livesLabel = GetNode<Label>("%LivesLeftLabel");
+		
+		_splashTitle = GetNode<TextureButton>("%SplashTitle");
+		_splashWin = GetNode<TextureButton>("%SplashWin");
+		_splashLose = GetNode<TextureButton>("%SplashLose");
+
+		// Ensure splashes stay on top of dynamically generated cards
+		_splashTitle.ZIndex = 10;
+		_splashWin.ZIndex = 10;
+		_splashLose.ZIndex = 10;
+
+		_splashTitle.Pressed += StartActualGame; // New separate method
+		_splashWin.Pressed += ShowTitle;
+		_splashLose.Pressed += ShowTitle;
 
 		_cardBackTemplate.Hide();
 		_cardFrontTemplate.Hide();
+
+		ShowTitle();
 	}
+	
+	public void ShowTitle()
+	{
+		ClearBoard();
+		_splashWin.Hide();
+		_splashLose.Hide();
+		_splashTitle.Show();
+	}
+
+	// This is called by your Title Splash click
+	private void StartActualGame()
+	{
+		_splashTitle.Hide();
+		InitializeGameBoard();
+	}
+
+	// IBaseGame Implementation
+	public void StartGame()
+	{
+		// If this is the very first time the MainApp calls this (on scene load),
+		// we ignore it and stay on the Title Splash.
+		if (_isInitialStart)
+		{
+			_isInitialStart = false;
+			ShowTitle(); 
+			return;
+		}
+
+		// If it's a manual reset (subsequent calls), we skip title and go to game
+		_splashTitle.Hide(); 
+		_splashWin.Hide();
+		_splashLose.Hide();
+		InitializeGameBoard();
+	}
+
+	private void InitializeGameBoard()
+	{
+		ClearBoard();
+		
+		_pairsFound = 0;
+		_totalPairs = (Rows * Cols) / 2;
+		_lives = (int)(Rows * Cols * 0.75f);
+		UpdateLivesUI();
+		
+		int pairCount = _totalPairs;
+		List<int> selectedIds = new List<int>();
+
+		while (selectedIds.Count < pairCount)
+		{
+			int id = GameUtils.GetRandomIdByGenRange(1, _currentGen);
+			if (!selectedIds.Contains(id)) selectedIds.Add(id);
+		}
+
+		List<int> gameBoardIds = new List<int>();
+		gameBoardIds.AddRange(selectedIds);
+		gameBoardIds.AddRange(selectedIds);
+		gameBoardIds.Shuffle();
+
+		GenerateGrid(gameBoardIds);
+	}
+
+	private void OnWin()
+	{
+		_isProcessing = true;
+		_splashWin.Show();
+		// Force splash to the front of the draw list
+		_splashWin.ZIndex = 10; 
+	}
+
+	private void OnGameOver()
+	{
+		_isProcessing = true;
+		_splashLose.Show();
+		_splashLose.ZIndex = 10;
+	}
+
+	private void ClearBoard()
+	{
+		foreach (var card in _activeCards) if (IsInstanceValid(card)) card.QueueFree();
+		_activeCards.Clear();
+		_firstSelected = null;
+		_secondSelected = null;
+		_isProcessing = false; 
+	}
+
+
 	
 	private void CalculateGridMargin()
 	{
@@ -51,33 +160,7 @@ public partial class PokePairs : Node2D, IBaseGame
 		_dynamicGridMargin = new Vector2(startX, FixedYOffset);
 	}
 
-	public void StartGame()
-	{
-		ClearBoard();
-		
-		_lives = (int)(Rows * Cols * 0.75f);
-		UpdateLivesUI();
-		
-		// 1. Prepare the Pokémon IDs
-		int pairCount = (Rows * Cols) / 2;
-		List<int> selectedIds = new List<int>();
 
-		// Get unique IDs for the pairs
-		while (selectedIds.Count < pairCount)
-		{
-			int id = GameUtils.GetRandomIdByGenRange(1, _currentGen);
-			if (!selectedIds.Contains(id)) selectedIds.Add(id);
-		}
-
-		// 2. Double them and shuffle
-		List<int> gameBoardIds = new List<int>();
-		gameBoardIds.AddRange(selectedIds);
-		gameBoardIds.AddRange(selectedIds);
-		gameBoardIds.Shuffle(); // Using your GameUtils extension
-
-		// 3. Generate the grid
-		GenerateGrid(gameBoardIds);
-	}
 	
 	private void UpdateLivesUI()
 	{
@@ -86,10 +169,6 @@ public partial class PokePairs : Node2D, IBaseGame
 			_livesLabel.Text = _lives.ToString();
 		}
 
-		if (_lives <= 0)
-		{
-			OnGameOver();
-		}
 	}
 	
 
@@ -183,18 +262,26 @@ public partial class PokePairs : Node2D, IBaseGame
 
 		if (id1 == id2)
 		{
-			// Match found!
+			_pairsFound++;
 			_firstSelected.Disabled = true;
 			_secondSelected.Disabled = true;
-			//_lives++;
-			UpdateLivesUI();
 			
+			if (_pairsFound >= _totalPairs)
+			{
+				OnWin();
+				return; // Exit early so we don't reset _isProcessing yet
+			}
 		}
 		else
 		{
-			// No match found!
-			_lives--; // Decrement lives
+			_lives--;
 			UpdateLivesUI();
+
+			if (_lives <= 0)
+			{
+				OnGameOver();
+				return; // Exit early
+			}
 
 			ShowCardFace(_firstSelected, false);
 			ShowCardFace(_secondSelected, false);
@@ -216,22 +303,10 @@ public partial class PokePairs : Node2D, IBaseGame
 		// If you want to "hide" the back texture:
 		card.SelfModulate = show ? new Color(1, 1, 1, 0) : new Color(1, 1, 1, 1);
 	}
-	
-	private void OnGameOver()
-	{
-		GD.Print("Game Over! Out of lives.");
-		_isProcessing = true; // Block further input
-		// You can add a Game Over popup or call StopGame() here
-	}
+		
+
 
 	public void SetGeneration(int gen) => _currentGen = gen;
 	public void StopGame() => ClearBoard();
 
-	private void ClearBoard()
-	{
-		foreach (var card in _activeCards) if (IsInstanceValid(card)) card.QueueFree();
-		_activeCards.Clear();
-		_firstSelected = null;
-		_secondSelected = null;
-	}
 }
