@@ -24,7 +24,7 @@ public partial class KantoHoldEm : Node2D, IBaseGame
 	private List<int> _playerHand = new List<int>();
 	private List<int> _dealerHand = new List<int>();
 	private bool[] _hasDiscarded = new bool[3];
-	private float _dealerEdge = 0.05f; //Dealer's chance of getting the best hand, cascading down
+	private float _dealerEdge = 0.003f; //Dealer's chance of getting the best hand, cascading down
 
 	private TextureRect[] _dealerFronts = new TextureRect[3];
 	private TextureRect[] _dealerBacks = new TextureRect[3];
@@ -136,6 +136,7 @@ public partial class KantoHoldEm : Node2D, IBaseGame
 			{
 				return GenerateSpecificRank((HandRank)r);
 			}
+			_dealerEdge *= 1.03f; //give dealer better chances to roll lower but still good hands
 		}
 		
 		// Default: Just a random hand (Singleton or whatever nature provides)
