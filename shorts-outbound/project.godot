@@ -18,7 +18,7 @@ config/icon="uid://dth00eqc1espl"
 
 [display]
 
-window/size/viewport_width=784
+window/size/viewport_width=980
 window/size/viewport_height=854
 
 [dotnet]
