@@ -90,22 +90,12 @@ public partial class RecordingViewport : SubViewport
 	{
 		string ffmpegPath = ProjectSettings.GlobalizePath("res://Tools/ffmpeg.exe");
 		string musicPathAbs = ProjectSettings.GlobalizePath(_audioPath);
-		
-		// We create a temporary name for the output so we don't overwrite the source while reading it
 		string outputPath = _currentVideoPath.Replace(".avi", "_final.mp4");
 
-		GD.Print("Starting FFmpeg Audio Muxing...");
+		GD.Print("--- FFmpeg Post-Processing Started ---");
 
-		/* 
-		   FFmpeg Arguments Breakdown:
-		   -stream_loop -1: Loops the input audio infinitely
-		   -i [audio]: The music track
-		   -i [video]: The recorded MJPG video
-		   -shortest: Forces the output to end when the shortest stream (the video) ends
-		   -c:v libx264: Encodes to H.264 (Better for TikTok/YouTube than MJPG)
-		   -pix_fmt yuv420p: Ensures compatibility with most mobile players
-		*/
-		string args = $"-stream_loop -1 -i \"{musicPathAbs}\" -i \"{_currentVideoPath}\" -shortest -c:v libx264 -pix_fmt yuv420p -c:a aac -b:a 192k -y \"{outputPath}\"";
+		// Added '-preset ultrafast' for speed and '-threads 0' to use all CPU cores
+		string args = $"-stream_loop -1 -i \"{musicPathAbs}\" -i \"{_currentVideoPath}\" -shortest -c:v libx264 -preset ultrafast -pix_fmt yuv420p -c:a aac -b:a 192k -threads 0 -y \"{outputPath}\"";
 
 		await Task.Run(() =>
 		{
@@ -116,23 +106,39 @@ public partial class RecordingViewport : SubViewport
 					FileName = ffmpegPath,
 					Arguments = args,
 					UseShellExecute = false,
-					CreateNoWindow = true, // Keep it in the background
-					RedirectStandardError = true
+					CreateNoWindow = true,
+					RedirectStandardError = true, // FFmpeg logs to Error stream
+					RedirectStandardOutput = true
 				};
 
-				using (Process process = Process.Start(psi))
+				using (Process process = new Process())
 				{
+					process.StartInfo = psi;
+					
+					// Hook up the event handler for real-time console output
+					process.ErrorDataReceived += (sender, e) => 
+					{
+						if (!string.IsNullOrEmpty(e.Data))
+						{
+							// This prints every FFmpeg line (frame, fps, size, time, bitrate, speed)
+							GD.Print($"[FFmpeg]: {e.Data}");
+						}
+					};
+
+					process.Start();
+					process.BeginErrorReadLine(); // Start asynchronous reading
 					process.WaitForExit();
-					GD.Print("FFmpeg Process Finished with code: " + process.ExitCode);
+					
+					GD.Print($"--- FFmpeg Finished (Exit Code: {process.ExitCode}) ---");
 				}
 			}
 			catch (Exception e)
 			{
-				GD.PrintErr("FFmpeg Error: " + e.Message);
+				GD.PrintErr("FFmpeg Execution Error: " + e.Message);
 			}
 		});
 
-		GD.Print("Final Video Ready: " + outputPath);
+		GD.Print("Final Video Exported to: " + outputPath);
 	}
 
 	public override void _ExitTree()
