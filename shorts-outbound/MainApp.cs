@@ -309,16 +309,47 @@ public partial class MainApp : Node2D
 
 	private void StartRecording()
 	{
+		// 1. Generate the video filename and path
 		string timestamp = Time.GetDatetimeStringFromSystem().Replace(":", "-");
-		// Combine path from LineEdit with the filename
-		
-		string path = _lineEditPath.Text.PathJoin(_currentGameTitle + $"{timestamp}.avi");
+		string fileName = $"{_currentGameTitle}_{timestamp}.avi";
+		string videoPath = _lineEditPath.Text.PathJoin(fileName);
 
-		_recorder.StartRecording(path);
+		// 2. Determine Music Path
+		bool musicEnabled = _checkBoxMusic.ButtonPressed;
+		string fullMusicPath = "";
 
+		if (musicEnabled)
+		{
+			// Get selected items (returns an array of indices)
+			int[] selectedItems = _itemListMusic.GetSelectedItems();
+
+			if (selectedItems.Length > 0)
+			{
+				// Get the filename from the ItemList
+				string selectedMusicName = _itemListMusic.GetItemText(selectedItems[0]);
+				
+				// Combine with the folder path from the LineEdit
+				fullMusicPath = _lineEditMusicFolder.Text.PathJoin(selectedMusicName);
+			}
+			else
+			{
+				// Fallback: If music is checked but nothing is selected, 
+				// you might want to disable musicEnabled or log a warning
+				GD.Print("Music enabled but no track selected in the list!");
+				musicEnabled = false;
+			}
+		}
+
+		// 3. Pass everything to the FaceCam recorder
+		_recorder.StartRecording(videoPath, musicEnabled, fullMusicPath);
+
+		// 4. Update UI State
 		_isRecording = true;
 		_buttonRecord.Text = "STOP RECORDING";
 		_buttonRecord.Modulate = new Color(1, 0, 0);
+
+		GD.Print($"Recording to: {videoPath}");
+		if (musicEnabled) GD.Print($"Muxing with track: {fullMusicPath}");
 	}
 
 	private void StopRecording()
