@@ -18,6 +18,12 @@ public partial class MainApp : Node2D
 	private Button _buttonResetGame;
 	private CheckBox _checkBoxFacecam;
 	private TextureRect _facecam;
+	
+	// Music UI References
+	private CheckBox _checkBoxMusic;
+	private ItemList _itemListMusic;
+	private LineEdit _lineEditMusicFolder;
+	private Button _buttonMusicFolder;
 
 	// State tracking
 	private bool _isRecording = false;
@@ -39,6 +45,12 @@ public partial class MainApp : Node2D
 		_buttonResetGame = GetNode<Button>("%ButtonResetGame");
 		_checkBoxFacecam = GetNode<CheckBox>("%CheckBoxFacecam");
    		_facecam = GetNode<TextureRect>("%Facecam");
+		
+		// Music References (using the unique names from your image)
+		_checkBoxMusic = GetNode<CheckBox>("%CheckBoxMusic");
+		_itemListMusic = GetNode<ItemList>("%ItemListMusic");
+		_lineEditMusicFolder = GetNode<LineEdit>("%LineEditMusicFolder");
+		_buttonMusicFolder = GetNode<Button>("%ButtonMusicFolder");
 
 		// Connect Signals to Methods
 		_buttonRecord.Pressed += OnRecordButtonPressed;
@@ -47,11 +59,13 @@ public partial class MainApp : Node2D
 		_itemListGames.ItemActivated += OnGameItemActivated;
 		_buttonResetGame.Pressed += OnResetButtonPressed;
 		_checkBoxFacecam.Toggled += OnFacecamToggled;
+		_buttonMusicFolder.Pressed += OnOpenMusicFolderPressed;
 		
 		_checkBoxFacecam.ButtonPressed = true;
 		_facecam.Visible = true;
 		_lineEditPath.Text = OS.GetUserDataDir();
 		
+		SetupMusicSystem();
 		ScanGamesFolder();
 		
 		if (_itemListGames.ItemCount == 0) 
@@ -99,9 +113,91 @@ public partial class MainApp : Node2D
 				fileName = dir.GetNext();
 			}
 		}
+		
+		
+	}
+	
+	private void SetupMusicSystem()
+	{
+		string internalPath = "res://Music/";
+		
+		// Ensure directory exists
+		if (!DirAccess.DirExistsAbsolute(internalPath))
+		{
+			DirAccess.MakeDirAbsolute(internalPath);
+		}
+
+		// Convert res:// to C:/Users/...
+		string globalPath = ProjectSettings.GlobalizePath(internalPath);
+		_lineEditMusicFolder.Text = globalPath;
+
+		_itemListMusic.Clear();
+		string[] allowedExtensions = { ".mp3", ".wav", ".ogg", ".ogv", ".m4a", ".aac" };
+		int validFileCount = 0;
+
+		// IMPORTANT: Open the GLOBAL path, not the internal one
+		using var dir = DirAccess.Open(globalPath); 
+		
+		if (dir != null)
+		{
+			dir.ListDirBegin();
+			string fileName = dir.GetNext();
+
+			while (fileName != "")
+			{
+				// Skip the .import files Godot creates automatically
+				if (!dir.CurrentIsDir() && !fileName.EndsWith(".import"))
+				{
+					bool isValid = false;
+					foreach (string ext in allowedExtensions)
+					{
+						if (fileName.ToLower().EndsWith(ext))
+						{
+							isValid = true;
+							break;
+						}
+					}
+
+					if (isValid)
+					{
+						_itemListMusic.AddItem(fileName);
+						validFileCount++;
+					}
+				}
+				fileName = dir.GetNext();
+			}
+
+			_checkBoxMusic.Disabled = (validFileCount == 0);
+			GD.Print($"Scan complete. Found {validFileCount} valid files in {globalPath}");
+		}
+		else
+		{
+			GD.PrintErr($"Failed to open directory at: {globalPath}");
+		}
 	}
 	
 	// --- INTERACTION METHODS ---
+	
+	private void OnOpenMusicFolderPressed()
+{
+	// Since the SetupMusicSystem already globalized the path into the LineEdit,
+	// we can use it directly.
+	string absolutePath = _lineEditMusicFolder.Text;
+	
+	// Safety check: ensure the folder still exists before trying to open it
+	if (DirAccess.DirExistsAbsolute(absolutePath))
+	{
+		Error err = OS.ShellOpen(absolutePath);
+		if (err != Error.Ok)
+		{
+			GD.PrintErr($"Could not open music folder: {absolutePath}");
+		}
+	}
+	else
+	{
+		GD.PrintErr("Music folder path does not exist on disk.");
+	}
+}
 
 	private void OnSliderValueChanged(double value)
 	{

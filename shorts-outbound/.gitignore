@@ -26,5 +26,6 @@ obj/
 
 # AI Models & Large Assets & potentially copyrighted Assets
 /Models/
+/Music/
 /Assets/Pokesprites/*
 !/Assets/Pokesprites/0000.png
